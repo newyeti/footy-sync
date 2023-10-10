@@ -22,7 +22,7 @@ parent_directory = os.path.abspath(os.path.join(current_directory, ".."))
 sys.path.insert(0, parent_directory)
 
 from app.dependencies.service_models import ServiceException
-from app.dependencies.functions import execute_shell
+from app.dependencies.functions import isNotNull
 from app.routers import teams
 
 
@@ -54,7 +54,18 @@ async def add_process_time_header(request: Request, call_next):
 def get_settings():
     return Settings()
 
+AppSettings = Annotated[Settings, Depends(get_settings)]
+
 @app.get("/")
-async def health(settings: Annotated[Settings, Depends(get_settings)]):
-    return settings
-    # return {"status": f"{settings.app_name} service is running."}
+async def health(settings: AppSettings):
+    return {"status": f"{settings.app_name} service is running."}
+
+
+@app.get("/settings")
+async def settings(settings: AppSettings):
+    return {
+        "mongo": isNotNull(settings.mongo),
+        "redis": isNotNull(settings.redis),
+        "bigquery": isNotNull(settings.bigquery),
+        "rapid_api_keys": isNotNull(settings.rapid_api)
+    }

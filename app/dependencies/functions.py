@@ -68,3 +68,6 @@ def execute_shell(script: str):
             print(completed_process.stderr)
     except (FileNotFoundError | subprocess.CalledProcessError) as e:
         raise Exception(str(e))
+
+def isNotNull(val : Any) -> bool:
+    return val != None
