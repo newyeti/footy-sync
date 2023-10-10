@@ -34,25 +34,34 @@ if [[ ${environment} == "prod" ]]; then
 fi
 
 #Mongo DB
-export MONGO_HOSTNAME=$(get_credentials "mongo" ".${env_mongo}.hostname")
-export MONGO_USERNAME=$(get_credentials "mongo" ".${env_mongo}.username")
-export MONGO_PASSWORD=$(get_credentials "mongo" ".${env_mongo}.password")
+MONGO_HOSTNAME=$(get_credentials "mongo" ".${env_mongo}.hostname")
+MONGO_USERNAME=$(get_credentials "mongo" ".${env_mongo}.username")
+MONGO_PASSWORD=$(get_credentials "mongo" ".${env_mongo}.password")
+MONGO_JSON_FMT='{"HOSTNAME": "%s", "USERNAME": "%s", "PASSWORD": "%s"}'
+export MONGO=$(printf "${MONGO_JSON_FMT}" "${MONGO_HOSTNAME}" "${MONGO_USERNAME}" "${MONGO_PASSWORD}")
 
 #BigQuery
-export BIGQUERY_CREDENTIALS=${bq_credentials}
+BIGQUERY_CREDENTIAL_JSON_FMT='{"CREDENTIAL": "%s"}'
+export BIGQUERY=$(printf "${BIGQUERY_CREDENTIAL_JSON_FMT}" "${bq_credentials}" )
 
 #Redis
-export REDIS_HOSTNAME=$(get_credentials "infra" ".${env_infra}.redis.hostname")
-export REDIS_PORT=$(get_credentials "infra" ".${env_infra}.redis.port")
-export REDIS_PASSWORD=$(get_credentials "infra" ".${env_infra}.redis.password")
-export REDIS_SSL_ENABLED=TRUE
+REDIS_HOSTNAME=$(get_credentials "infra" ".${env_infra}.redis.hostname")
+REDIS_PORT=$(get_credentials "infra" ".${env_infra}.redis.port")
+REDIS_PASSWORD=$(get_credentials "infra" ".${env_infra}.redis.password")
+REDIS_SSL_ENABLED=True
+REDIS_JSON_FMT='{"HOSTNAME": "%s", "PORT": "%s", "USERNAME": "%s", "PASSWORD": "%s", "SSL_ENABLED": "%s"}'
+
+export REDIS=$(printf "${REDIS_JSON_FMT}" "${REDIS_HOSTNAME}" "${REDIS_PORT}" "${REDIS_USERNAME}" "${REDIS_PASSWORD}" "${REDIS_SSL_ENABLED}")
 
 #Kafka
-export KAFKA_BOOTSTRAP_SERVERS=$(get_credentials "infra" ".${env_infra}.kafka.bootstrap_servers")
-export KAFKA_USERNAME=$(get_credentials "infra" ".${env_infra}.kafka.username")
-export KAFKA_PASSWORD=$(get_credentials "infra" ".${env_infra}.kafka.password")
+KAFKA_BOOTSTRAP_SERVERS=$(get_credentials "infra" ".${env_infra}.kafka.bootstrap_servers")
+KAFKA_USERNAME=$(get_credentials "infra" ".${env_infra}.kafka.username")
+KAFKA_PASSWORD=$(get_credentials "infra" ".${env_infra}.kafka.password")
+KAFKA_JSON_FMT='{"BOOTSTRAP_SERVERS": "%s","USERNAME": "%s", "PASSWORD": "%s"}'
+export KAFKA=$(printf "${KAFKA_JSON_FMT}" "${KAFKA_BOOTSTRAP_SERVERS}" "${KAFKA_USERNAME}" "${KAFKA_PASSWORD}")
 
 #Rapid API Keys (comma separated list)
-export RAPID_API_KEYS=${rapid_api_keys}
+API_KEYS_JSON_FMT='{"API_KEYS": "%s"}'
+export RAPID_API=$(printf "${API_KEYS_JSON_FMT}" "${rapid_api_keys}" )
 
 echo "Setting environment variables completed."

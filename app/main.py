@@ -25,8 +25,7 @@ from app.dependencies.service_models import ServiceException
 from app.dependencies.functions import execute_shell
 from app.routers import teams
 
-#setup envrionment variabled
-execute_shell(script="../scripts/app_env.sh")
+
 
 # Application
 app = FastAPI(title= "Footy Data Sync API", version="v1.0")
@@ -50,10 +49,12 @@ async def add_process_time_header(request: Request, call_next):
     logger.info(f"method={request.method}, path={request.url.path}, response_time={process_time}")
     return response    
 
+
 @lru_cache()
 def get_settings():
     return Settings()
 
 @app.get("/")
 async def health(settings: Annotated[Settings, Depends(get_settings)]):
-    return {"status": f"{settings.app_name} service is running."}
+    return settings
+    # return {"status": f"{settings.app_name} service is running."}
