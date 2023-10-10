@@ -1,11 +1,13 @@
-from fastapi import FastAPI, status, Request
+from fastapi import FastAPI, status, Request, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 import logging
 import os
 import sys
 import time
-
+from config import Settings
+from functools import lru_cache
+from typing import Annotated
 
 logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -43,6 +45,10 @@ async def add_process_time_header(request: Request, call_next):
     logger.info(f"method={request.method}, path={request.url.path}, response_time={process_time}")
     return response    
 
+@lru_cache()
+def get_settings():
+    return Settings()
+
 @app.get("/")
-async def health():
-    return {"status": "running"}
+async def health(settings: Annotated[Settings, Depends(get_settings)]):
+    return {"status": f"{settings.app_name} service is running."}
