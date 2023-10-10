@@ -2,7 +2,13 @@ import aiohttp
 import logging
 import subprocess
 from typing import Any
+from functools import lru_cache
+from config import Settings
 from ..dependencies.service_models import HttpResponse
+
+@lru_cache()
+def get_settings():
+    return Settings()
 
 async def get_request(session: aiohttp.ClientSession, url: str,
                       **kwargs: Any) -> HttpResponse:

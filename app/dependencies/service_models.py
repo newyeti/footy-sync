@@ -9,8 +9,10 @@ class ServiceStatus(Enum):
     failed = "failed"
 
 class Tags(Enum):
+    app = "app"
     teams = "teams"
     standings = "standings"
+    
     
 class ServiceResponse(BaseModel):
     season: int

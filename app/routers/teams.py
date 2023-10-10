@@ -7,7 +7,7 @@ import aiohttp
 import asyncio
 from ..dependencies.service_models import ServiceResponse, CommonPathParams, Tags, ServiceStatus, ServiceException
 from ..dependencies.functions import get_request
-from ..dependencies.constants import rapid_api_hostname, rapid_api_key, headers
+from ..dependencies.constants import rapid_api_hostname, headers
 
 logger = logging.getLogger(__name__)
 

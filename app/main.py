@@ -1,9 +1,8 @@
 from fastapi import FastAPI, status, Request, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-from config import Settings
 from functools import lru_cache
-from typing import Annotated
+from typing import Any
 
 import logging
 import os
@@ -21,11 +20,10 @@ logger.debug(current_directory)
 parent_directory = os.path.abspath(os.path.join(current_directory, ".."))
 sys.path.insert(0, parent_directory)
 
-from app.dependencies.service_models import ServiceException
+from app.dependencies.service_models import ServiceException, Tags
 from app.dependencies.functions import isNotNull
+from app.dependencies.constants import AppSettings
 from app.routers import teams
-
-
 
 # Application
 app = FastAPI(title= "Footy Data Sync API", version="v1.0")
@@ -50,19 +48,13 @@ async def add_process_time_header(request: Request, call_next):
     return response    
 
 
-@lru_cache()
-def get_settings():
-    return Settings()
-
-AppSettings = Annotated[Settings, Depends(get_settings)]
-
-@app.get("/")
-async def health(settings: AppSettings):
+@app.get("/", tags=[Tags.app], name="Health check")
+async def health(settings: AppSettings) -> Any:
     return {"status": f"{settings.app_name} service is running."}
 
 
-@app.get("/settings")
-async def settings(settings: AppSettings):
+@app.get("/settings", tags=[Tags.app], name="App Settings")
+async def settings(settings: AppSettings) -> Any:
     return {
         "mongo": isNotNull(settings.mongo),
         "redis": isNotNull(settings.redis),
