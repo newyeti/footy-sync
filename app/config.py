@@ -9,6 +9,4 @@ class Database(BaseSettings):
 class Settings(BaseSettings):
     app_name: str = "Footy-Sync"
     mongo_db: Database
-    # bigquery_db: Database
-    # redis_db: Database
 

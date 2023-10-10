@@ -1,5 +1,6 @@
 import aiohttp
 import logging
+import subprocess
 from typing import Any
 from ..dependencies.service_models import HttpResponse
 
@@ -48,3 +49,22 @@ async def post_request(session: aiohttp.ClientSession,
     except aiohttp.ClientError as e:
         return {"error": f"Error posting data to {url}: {e}"}
 
+def execute_shell(script: str):
+    script_command = [script]
+    # Run the shell script
+    try:
+        # Run the script and capture the output and error streams
+        completed_process = subprocess.run(script_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+        # Check if the process completed successfully
+        if completed_process.returncode == 0:
+            print("Script executed successfully.")
+            print("Output:")
+            print(completed_process.stdout)
+        else:
+            print(f"Script failed with return code {completed_process.returncode}.")
+            print("Error:")
+            print(completed_process.stderr)
+    except FileNotFoundError:
+        print("The script file was not found.")
+        raise Exception("The script file was not found.")

@@ -3,6 +3,7 @@
 mongo_credentials=`gcloud secrets versions access latest --secret=newyeti_mongo_credentials`
 bq_credentials=`gcloud secrets versions access latest --secret=newyeti_bq_credentials`
 infra_credentials=`gcloud secrets versions access latest --secret=upstash_infra_credentials`
+rapid_api_keys=`gcloud secrets versions access latest --secret=rapid-api-keys`
 
 get_credentials() {
     type=$1
@@ -22,7 +23,7 @@ if [[ -z "${environment}" ]]; then
     environment="dev"
 fi
 
-echo "Setting ${environment} envrionment variables"
+echo "Setting '${environment}' envrionment variables"
 
 env_infra="dev"
 env_mongo="dev"
@@ -50,5 +51,8 @@ export REDIS_SSL_ENABLED=TRUE
 export KAFKA_BOOTSTRAP_SERVERS=$(get_credentials "infra" ".${env_infra}.kafka.bootstrap_servers")
 export KAFKA_USERNAME=$(get_credentials "infra" ".${env_infra}.kafka.username")
 export KAFKA_PASSWORD=$(get_credentials "infra" ".${env_infra}.kafka.password")
+
+#Rapid API Keys (comma separated list)
+export RAPID_API_KEYS=${rapid_api_keys}
 
 echo "Setting environment variables completed."

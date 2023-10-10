@@ -1,13 +1,14 @@
 from fastapi import FastAPI, status, Request, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
+from config import Settings
+from functools import lru_cache
+from typing import Annotated
+
 import logging
 import os
 import sys
 import time
-from config import Settings
-from functools import lru_cache
-from typing import Annotated
 
 logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -21,7 +22,11 @@ parent_directory = os.path.abspath(os.path.join(current_directory, ".."))
 sys.path.insert(0, parent_directory)
 
 from app.dependencies.service_models import ServiceException
+from app.dependencies.functions import execute_shell
 from app.routers import teams
+
+#setup envrionment variabled
+execute_shell(script="../scripts/app_env.sh")
 
 # Application
 app = FastAPI(title= "Footy Data Sync API", version="v1.0")
