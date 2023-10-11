@@ -1,13 +1,13 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, status
 from fastapi.encoders import jsonable_encoder
-from typing import Annotated, Any
+from typing import Any
 
 import logging
 import aiohttp
 import asyncio
-from ..dependencies.service_models import ServiceResponse, CommonPathParams, Tags, ServiceStatus, ServiceException
-from ..dependencies.functions import get_request
-from ..dependencies.constants import rapid_api_hostname, headers
+from ..dependencies.service_models import ServiceResponse, Tags, ServiceStatus, ServiceException
+from ..dependencies.functions import get_request, get_request_header
+from ..dependencies.constants import CommonsPathDependency, AppSettingsDependency
 
 logger = logging.getLogger(__name__)
 
@@ -15,24 +15,28 @@ router = APIRouter(
             tags=["teams"]
         )
 
-CommonsDependency = Annotated[CommonPathParams, Depends()]
-
 @router.post("/teams/{season}/{league_id}",
           status_code=status.HTTP_200_OK,
           summary = "Synchornize teams data",
           description = "Retrive teams data from API and updates database",
           tags=[Tags.teams],
           response_model=ServiceResponse)
-async def sync_teams(path_params: CommonsDependency) -> Any:
+async def sync_teams(path_params: CommonsPathDependency,
+                     settings: AppSettingsDependency) -> Any:
     
     logger.debug(f"calling endpoint=/teams/{path_params.season}/{path_params.league_id}")
-    
-    
-    url = f"https://{rapid_api_hostname}/v3/teams"
+
+    url = f"https://{settings.rapid_api.api_hostname}/v3/teams"
+    headers = get_request_header(settings=settings)
     params = {
         "season": path_params.season,
         "league": path_params.league_id
     }
+    
+    # headers = {
+    #         'X-RapidAPI-Key': "U4y3LniAIdmsh1SryySGibO7k8ELp1syFPvjsnpHOQNWAvpJAk",
+    #         'X-RapidAPI-Host': "api-football-v1.p.rapidapi.com"
+    #     }
     
     async with aiohttp.ClientSession() as session:
         try:

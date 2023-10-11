@@ -1,7 +1,6 @@
 from fastapi import FastAPI, status, Request, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-from functools import lru_cache
 from typing import Any
 
 import logging
@@ -22,7 +21,7 @@ sys.path.insert(0, parent_directory)
 
 from app.dependencies.service_models import ServiceException, Tags
 from app.dependencies.functions import isNotNull
-from app.dependencies.constants import AppSettings
+from app.dependencies.constants import AppSettingsDependency
 from app.routers import teams
 
 # Application
@@ -49,12 +48,12 @@ async def add_process_time_header(request: Request, call_next):
 
 
 @app.get("/", tags=[Tags.app], name="Health check")
-async def health(settings: AppSettings) -> Any:
+async def health(settings: AppSettingsDependency) -> Any:
     return {"status": f"{settings.app_name} service is running."}
 
 
 @app.get("/settings", tags=[Tags.app], name="App Settings")
-async def settings(settings: AppSettings) -> Any:
+async def settings(settings: AppSettingsDependency) -> Any:
     return {
         "mongo": isNotNull(settings.mongo),
         "redis": isNotNull(settings.redis),

@@ -21,9 +21,13 @@ class RedisSetting(BaseSettings):
 
 class RapidApiSettings(BaseSettings):
     api_keys: str
+    api_hostname: str = "api-football-v1.p.rapidapi.com"
     
     class Config:
         env_prefix = "RAPID_"
+        
+    def get_key() -> str:
+        return "U4y3LniAIdmsh1SryySGibO7k8ELp1syFPvjsnpHOQNWAvpJAk"
         
 class BigQuerySettings(BaseSettings):
     credential: str

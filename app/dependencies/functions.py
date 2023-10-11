@@ -10,6 +10,16 @@ from ..dependencies.service_models import HttpResponse
 def get_settings():
     return Settings()
 
+@lru_cache()
+def get_api_key(keys: str):
+    return "U4y3LniAIdmsh1SryySGibO7k8ELp1syFPvjsnpHOQNWAvpJAk"
+
+def get_request_header(settings: Settings):
+    return {
+            'X-RapidAPI-Key': get_api_key(settings.rapid_api.api_keys),
+            'X-RapidAPI-Host': settings.rapid_api.api_hostname
+        }
+
 async def get_request(session: aiohttp.ClientSession, url: str,
                       **kwargs: Any) -> HttpResponse:
     try:
