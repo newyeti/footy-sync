@@ -33,11 +33,6 @@ async def sync_teams(path_params: CommonsPathDependency,
         "league": path_params.league_id
     }
     
-    # headers = {
-    #         'X-RapidAPI-Key': "U4y3LniAIdmsh1SryySGibO7k8ELp1syFPvjsnpHOQNWAvpJAk",
-    #         'X-RapidAPI-Host': "api-football-v1.p.rapidapi.com"
-    #     }
-    
     async with aiohttp.ClientSession() as session:
         try:
             result = await asyncio.gather(get_request(session=session,

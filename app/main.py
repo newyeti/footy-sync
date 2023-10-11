@@ -20,9 +20,15 @@ parent_directory = os.path.abspath(os.path.join(current_directory, ".."))
 sys.path.insert(0, parent_directory)
 
 from app.dependencies.service_models import ServiceException, Tags
-from app.dependencies.functions import isNotNull
+from app.dependencies.functions import isNotNull, get_settings
 from app.dependencies.constants import AppSettingsDependency
 from app.routers import teams
+from app.dependencies.containers import Container
+from app.dependencies.services import Service
+from dependency_injector.wiring import inject, Provide
+
+
+app_settings = get_settings()
 
 # Application
 app = FastAPI(title= "Footy Data Sync API", version="v1.0")
@@ -60,3 +66,18 @@ async def settings(settings: AppSettingsDependency) -> Any:
         "bigquery": isNotNull(settings.bigquery),
         "rapid_api_keys": isNotNull(settings.rapid_api)
     }
+
+@app.get("/redis/connect/test", tags=[Tags.app], name="Connection test for Redis")
+@inject
+async def test_dependency(service: Service = Depends(Provide[Container.service])):
+    value = await service.redis_conn_test()
+    return {"connection": value}
+
+
+#Container
+container = Container()
+container.config.redis_host.from_value(app_settings.redis.hostname)
+container.config.redis_port.from_value(app_settings.redis.port)
+container.config.redis_password.from_value(app_settings.redis.password)
+container.config.redis_max_connections.from_value(app_settings.redis.max_connections)
+container.wire(modules=[__name__])

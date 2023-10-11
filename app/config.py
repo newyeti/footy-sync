@@ -15,6 +15,7 @@ class RedisSetting(BaseSettings):
     username: Optional[str | None]
     password: str
     ssl_enabled: bool = True
+    max_connections: int = 50
 
     class Config:
         env_prefix = "REDIS_"

@@ -3,22 +3,26 @@ import logging
 import subprocess
 from typing import Any
 from functools import lru_cache
-from config import Settings
+from ..config import Settings
 from ..dependencies.service_models import HttpResponse
 
 @lru_cache()
-def get_settings():
+def get_settings() -> Settings:
     return Settings()
+
 
 @lru_cache()
 def get_api_key(keys: str):
-    return "U4y3LniAIdmsh1SryySGibO7k8ELp1syFPvjsnpHOQNWAvpJAk"
+    api_keys = keys.split(",")
+    return api_keys[0]
+
 
 def get_request_header(settings: Settings):
     return {
             'X-RapidAPI-Key': get_api_key(settings.rapid_api.api_keys),
             'X-RapidAPI-Host': settings.rapid_api.api_hostname
         }
+
 
 async def get_request(session: aiohttp.ClientSession, url: str,
                       **kwargs: Any) -> HttpResponse:
@@ -84,6 +88,7 @@ def execute_shell(script: str):
             print(completed_process.stderr)
     except (FileNotFoundError | subprocess.CalledProcessError) as e:
         raise Exception(str(e))
+
 
 def isNotNull(val : Any) -> bool:
     return val != None

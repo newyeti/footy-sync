@@ -5,3 +5,11 @@ pymongo
 pytest
 asyncio
 aiohttp
+aioredis
+dependency-injector
+
+#Testing
+pytest
+pytest-asyncio
+pytest-cov
+httpx
