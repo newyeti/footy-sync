@@ -19,7 +19,7 @@ async def test_redis_client(client):
     service_mock.redis_conn_test.return_value = "success"
     
     with container.service.override(service_mock):
-        response = await client.get("/redis/connect/test")
+        response = await client.get("/connect/test/redis")
     
     assert response.status_code == 200
     assert response.json() == {'connection': 'success'}
