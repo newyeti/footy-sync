@@ -1,13 +1,14 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends
 from fastapi.encoders import jsonable_encoder
+from dependency_injector.wiring import inject, Provide
 from typing import Any
 
-import aiohttp
-import asyncio
-from ..internal.services.models import ServiceResponse, Tags, ServiceStatus, ServiceException
-from ..dependencies.functions import get_request, get_request_header
-from ..dependencies.constants import CommonsPathDependency, AppSettingsDependency
+from ..internal.services.models import ServiceResponse, Tags, ServiceStatus
+from ..internal.services.services import TeamService
 from ..dependencies.logger import get_logger
+from ..dependencies.exceptions import ServiceException
+from ..dependencies.containers import Container
+from ..dependencies.constants import CommonsPathDependency, AppSettingsDependency
 
 logger = get_logger(__name__)
 
@@ -21,36 +22,24 @@ router = APIRouter(
           description = "Retrive teams data from API and updates database",
           tags=[Tags.teams],
           response_model=ServiceResponse)
+@inject
 async def sync_teams(path_params: CommonsPathDependency,
-                     settings: AppSettingsDependency) -> Any:
+                     settings: AppSettingsDependency,
+                        team_service: TeamService = Depends(Provide[Container.team_service]),
+                        ) -> Any:
     
-    logger.debug(f"calling endpoint=/teams/{path_params.season}/{path_params.league_id}")
+    response = await team_service.upsert(path_params=path_params, settings=settings)
+    
+    logger.debug(response)
+    
+    if response.status_code == status.HTTP_200_OK:
+        response = ServiceResponse(season=2023, 
+                                league_id=39,
+                                service="teams",
+                                status= ServiceStatus.success)   
+        return jsonable_encoder(response)
+    else:
+        raise ServiceException(name="teams", message = response.response_data)
 
-    url = f"https://{settings.rapid_api.api_hostname}/v3/teams"
-    headers = get_request_header(settings=settings)
-    params = {
-        "season": path_params.season,
-        "league": path_params.league_id
-    }
-    
-    async with aiohttp.ClientSession() as session:
-        try:
-            result = await asyncio.gather(get_request(session=session,
-                            url=url, params=params, headers=headers))
-            
-            logger.info(result[0]) 
-            
-            api_response = result[0]
-            if api_response.status_code == status.HTTP_200_OK:
-                response = ServiceResponse(season=path_params.season, 
-                                       league_id=path_params.league_id,
-                                       service="teams",
-                                       status= ServiceStatus.success)   
-                return jsonable_encoder(response)
-            else:
-                raise ServiceException(name="teams", message = api_response.response_data)
-            
-        except aiohttp.ClientError as e:
-            raise ServiceException(name="teams", message = str(e))
             
     

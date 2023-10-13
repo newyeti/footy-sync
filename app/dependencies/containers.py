@@ -1,9 +1,10 @@
 from dependency_injector import containers, providers
 
-from ..internal.services import services
+from app.internal.services import services
 from app.internal.db.redis import RedisClient
 from app.internal.db.mongo import MongoClient
 from app.internal.db.repositorys import TeamRepository
+from app.dependencies.constants import AppSettingsDependency, CommonsPathDependency
 
 class Container(containers.DeclarativeContainer):
     
@@ -23,13 +24,22 @@ class Container(containers.DeclarativeContainer):
         provider=redis_pool
     )
     
-    team_service = providers.Factory(
-        services.TeamService,
-        cache_service=cache_service
+    api_service = providers.Factory(
+        services.ApiService
     )
     
     team_repository = providers.Callable(
         TeamRepository,
         mongo_db
     )
+    
+    team_service = providers.Factory(
+        services.TeamService,
+        api_service=api_service,
+        cache_service=cache_service,
+        repository=team_repository
+    )
+    
+    
+
 

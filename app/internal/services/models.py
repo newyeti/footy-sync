@@ -35,11 +35,6 @@ class ServiceResponse(BaseModel):
         }
     }
     
-class ServiceException(Exception):
-    def __init__(self, name: str, message: str):
-        self.name = name
-        self.message = message
-
 class CommonPathParams:
     def __init__(self, season: int, league_id: int) -> None:
         self.season = season

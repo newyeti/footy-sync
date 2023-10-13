@@ -1,7 +1,14 @@
+import json
+import aiohttp
+import asyncio
+
+from fastapi import params, status
 from aioredis import Redis
 from app.dependencies.logger import get_logger
-
-import json
+from app.dependencies.constants import CommonsPathDependency, AppSettingsDependency
+from app.dependencies.functions import get_request_header, get_request
+from app.dependencies.exceptions import ServiceException
+from app.internal.db.repositorys import TeamRepository
 
 logger = get_logger(__name__)
 
@@ -25,15 +32,53 @@ class CacheService:
         return [json.loads(await self.__provider.get(key)) for key in keys]
 
 
-class TeamService:
-    def __init__(self, cache_service: CacheService) -> None:
-        self._cache_service = cache_service
+class ApiService:
+    def __init__(self):
+        ...
+
+    async def fetch(self, 
+                    endpoint: str, 
+                    path_params: CommonsPathDependency, 
+                    settings: AppSettingsDependency):
+        
+        url = f"https://{settings.rapid_api.api_hostname}{endpoint}"
+        headers = get_request_header(settings=settings)
+        params = {
+            "season": path_params.season,
+            "league": path_params.league_id
+        }
+        
+        logger.debug(f"calling endpoint={url}")
+        
+        async with aiohttp.ClientSession() as session:
+            try:
+                result = await asyncio.gather(get_request(session=session,
+                                url=url, params=params, headers=headers))
+                
+                logger.info(result[0]) 
+                
+                api_response = result[0]
+                if api_response.status_code == status.HTTP_200_OK:
+                    return api_response
+                else:
+                    raise ServiceException(name="teams", message = api_response.response_data)
+                
+            except aiohttp.ClientError as e:
+                raise ServiceException(name="teams", message = str(e))
     
-    async def redis_conn_test(self) -> str:
-        await self._cache_service.set("test_key", '{"conn": "success"}')
-        value = await self._redis.get("test_key")
-        await self._redis.delete("test_key")
-        return value
+
+class TeamService:
+    def __init__(self, 
+                 api_service: ApiService,
+                 cache_service: CacheService,
+                 repository: TeamRepository) -> None:
+        self._api_service = api_service
+        self._cache_service = cache_service
+        self._repository = repository
+    
+    
+    async def upsert(self, path_params: CommonsPathDependency, settings: AppSettingsDependency):
+        return await self._api_service.fetch("/v3/teams", path_params=path_params, settings=settings)
     
 
 

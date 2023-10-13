@@ -15,7 +15,7 @@ current_directory =  os.path.abspath(os.path.dirname(__file__))
 parent_directory = os.path.abspath(os.path.join(current_directory, ".."))
 sys.path.insert(0, parent_directory)
 
-from app.internal.services.models import ServiceException
+from app.dependencies.exceptions import ServiceException
 from app.dependencies.functions import get_settings
 from app.dependencies.containers import Container
 from app.dependencies.logger import get_logger
@@ -107,5 +107,8 @@ container = Container()
 container.config.redis_settings.from_value(app_settings.redis)
 container.config.mongo_uri.from_value(mongo_uri())
 container.config.mongo_settings.from_value(app_settings.mongo)
-container.wire(modules=[__name__, "app.routers.admin"])
+container.wire(modules=[__name__, 
+                        "app.routers.admin",
+                        "app.routers.teams"
+                        ])
     
