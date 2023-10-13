@@ -1,5 +1,7 @@
 from aioredis import Redis
+from app.dependencies.logger import get_logger
 
+logger = get_logger(__name__)
 
 class Service:
     def __init__(self, redis: Redis) -> None:

@@ -5,6 +5,7 @@ class MongoSetting(BaseSettings):
     hostname: str
     username: str
     password: str
+    db: str
     
     class Config:
         env_prefix = "MONGO_"
@@ -26,9 +27,6 @@ class RapidApiSettings(BaseSettings):
     
     class Config:
         env_prefix = "RAPID_"
-        
-    def get_key() -> str:
-        return "U4y3LniAIdmsh1SryySGibO7k8ELp1syFPvjsnpHOQNWAvpJAk"
         
 class BigQuerySettings(BaseSettings):
     credential: str

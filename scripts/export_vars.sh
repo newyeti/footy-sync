@@ -17,7 +17,7 @@ get_credentials() {
 }
 
 
-environment=$(echo $APP_ENV)
+environment=$(echo $ENVIRONMENT)
 
 if [[ -z "${environment}" ]]; then
     environment="dev"
@@ -37,8 +37,9 @@ fi
 MONGO_HOSTNAME=$(get_credentials "mongo" ".${env_mongo}.hostname")
 MONGO_USERNAME=$(get_credentials "mongo" ".${env_mongo}.username")
 MONGO_PASSWORD=$(get_credentials "mongo" ".${env_mongo}.password")
-MONGO_JSON_FMT='{"HOSTNAME": "%s", "USERNAME": "%s", "PASSWORD": "%s"}'
-export MONGO=$(printf "${MONGO_JSON_FMT}" "${MONGO_HOSTNAME}" "${MONGO_USERNAME}" "${MONGO_PASSWORD}")
+MONGO_DB="test_football"
+MONGO_JSON_FMT='{"HOSTNAME": "%s", "USERNAME": "%s", "PASSWORD": "%s", "DB": "%s"}'
+export MONGO=$(printf "${MONGO_JSON_FMT}" "${MONGO_HOSTNAME}" "${MONGO_USERNAME}" "${MONGO_PASSWORD}" "${MONGO_DB}")
 
 #BigQuery
 BIGQUERY_CREDENTIAL_JSON_FMT='{"CREDENTIAL": "%s"}'

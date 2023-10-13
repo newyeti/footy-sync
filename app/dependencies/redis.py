@@ -1,19 +1,17 @@
 from typing import AsyncIterator
 from aioredis import Redis, from_url
+from app.config import RedisSetting
 
 
-async def init_redis_pool(host: str, 
-                          port: int, 
-                          password: str,
-                          max_connections: int) -> AsyncIterator[Redis]:
-    session = Redis(host=host,
-                    port=port,
-                    password=password, 
+async def init_redis_pool(settings: RedisSetting) -> AsyncIterator[Redis]:
+    session = Redis(host=settings.hostname,
+                    port=settings.port,
+                    password=settings.password, 
                     encoding="utf-8",
                     decode_responses=True,
                     ssl=True,
                     ssl_cert_reqs="none",
-                    max_connections=max_connections
+                    max_connections=settings.max_connections
                     )  
     yield session
     session.close()

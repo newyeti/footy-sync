@@ -9,7 +9,7 @@ class ServiceStatus(Enum):
     failed = "failed"
 
 class Tags(Enum):
-    app = "app"
+    admin = "admin"
     teams = "teams"
     standings = "standings"
     

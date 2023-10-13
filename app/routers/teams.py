@@ -2,14 +2,14 @@ from fastapi import APIRouter, status
 from fastapi.encoders import jsonable_encoder
 from typing import Any
 
-import logging
 import aiohttp
 import asyncio
 from ..dependencies.service_models import ServiceResponse, Tags, ServiceStatus, ServiceException
 from ..dependencies.functions import get_request, get_request_header
 from ..dependencies.constants import CommonsPathDependency, AppSettingsDependency
+from ..dependencies.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 router = APIRouter(
             tags=["teams"]
