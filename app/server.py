@@ -1,6 +1,9 @@
 from fastapi import FastAPI, status, Request, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
+from fastapi.middleware.cors import CORSMiddleware
+from prometheus_fastapi_instrumentator import Instrumentator
+
 from dependency_injector.wiring import inject, Provide
 
 import os
@@ -28,9 +31,22 @@ def create_app() -> FastAPI:
     app = FastAPI(title= "Footy Data Sync API", version="v1.0")
     app.include_router(admin.router)
     app.include_router(teams.router)
+    
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    
     return app
 
+# Create FastAPI app
 app = create_app()
+
+# Instrumentation
+instrumentator = Instrumentator().instrument(app=app)
 
 # Decorators
 @app.exception_handler(ServiceException)
@@ -64,6 +80,8 @@ async def startup(mongo_db: MongoClient = Depends(Provide[Container.mongo_db])):
     except ConnectionError as e:
         raise Exception(e)
     
+    instrumentator.expose(app)
+    
 
 @app.on_event("shutdown")
 @inject
@@ -84,9 +102,10 @@ def mongo_uri() -> str:
     hostname = app_settings.mongo.hostname
     return f"mongodb+srv://{username}:{password}@{hostname}/?retryWrites=true&w=majority"
 
-#Container
+
 container = Container()
 container.config.redis_settings.from_value(app_settings.redis)
 container.config.mongo_uri.from_value(mongo_uri())
 container.config.mongo_settings.from_value(app_settings.mongo)
 container.wire(modules=[__name__, "app.routers.admin"])
+    

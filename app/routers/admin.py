@@ -12,7 +12,7 @@ from app.dependencies.logger import get_logger
 logger = get_logger(__name__)
 
 router = APIRouter(
-            tags=["teams"]
+            tags=["admin"]
         )
 
 @router.get("/", 
