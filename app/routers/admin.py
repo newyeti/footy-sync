@@ -3,8 +3,8 @@ from typing import Any
 from dependency_injector.wiring import inject, Provide
 
 from app.dependencies.containers import Container
-from app.dependencies.services import Service
-from app.dependencies.service_models import Tags
+from app.internal.services.services import CacheService
+from app.internal.services.models import Tags
 from app.dependencies.constants import AppSettingsDependency
 from app.dependencies.functions import isNotNull
 from app.dependencies.logger import get_logger
@@ -40,7 +40,9 @@ async def settings(settings: AppSettingsDependency) -> Any:
             name="Connection test for Redis",
             status_code=status.HTTP_200_OK)
 @inject
-async def test_dependency(service: Service = Depends(Provide[Container.service])):
-    value = await service.redis_conn_test()
-    return {"connection": value}
+async def test_dependency(cache_service: CacheService = Depends(Provide[Container.cache_service])):
+    await cache_service.set("test_key", '{"conn": "success"}')
+    value = await cache_service.get("test_key")
+    await cache_service.delete("test_key")
+    return value
 

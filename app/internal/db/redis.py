@@ -1,6 +1,7 @@
 from typing import AsyncIterator
-from aioredis import Redis, from_url
+from aioredis import Redis
 from app.config import RedisSetting
+
 
 class RedisClient:
     async def init_redis_pool(settings: RedisSetting) -> AsyncIterator[Redis]:

@@ -4,7 +4,7 @@ from typing import Any
 
 import aiohttp
 import asyncio
-from ..dependencies.service_models import ServiceResponse, Tags, ServiceStatus, ServiceException
+from ..internal.services.models import ServiceResponse, Tags, ServiceStatus, ServiceException
 from ..dependencies.functions import get_request, get_request_header
 from ..dependencies.constants import CommonsPathDependency, AppSettingsDependency
 from ..dependencies.logger import get_logger

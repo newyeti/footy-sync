@@ -1,9 +1,8 @@
 from dependency_injector import containers, providers
 
-from . import services
-from app.internal.db.redis_client import RedisClient
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-from app.internal.db.mongo_client import MongoClient
+from ..internal.services import services
+from app.internal.db.redis import RedisClient
+from app.internal.db.mongo import MongoClient
 from app.internal.db.repositorys import TeamRepository
 
 class Container(containers.DeclarativeContainer):
@@ -19,12 +18,17 @@ class Container(containers.DeclarativeContainer):
         MongoClient, uri=config.mongo_uri, settings=config.mongo_settings
     )
 
-    service = providers.Factory(
-        services.Service,
-        redis=redis_pool
+    cache_service = providers.Factory(
+        services.CacheService,
+        provider=redis_pool
     )
     
-    team = providers.Callable(
+    team_service = providers.Factory(
+        services.TeamService,
+        cache_service=cache_service
+    )
+    
+    team_repository = providers.Callable(
         TeamRepository,
         mongo_db
     )

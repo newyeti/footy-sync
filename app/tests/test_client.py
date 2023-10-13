@@ -3,8 +3,8 @@ from unittest import mock
 import pytest
 from httpx import AsyncClient
 
-from ..main import app, container
-from ..dependencies.services import Service
+from ..server import app, container
+from ..internal.services.services import Service
 
 
 @pytest.fixture

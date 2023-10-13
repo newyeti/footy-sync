@@ -15,11 +15,11 @@ current_directory =  os.path.abspath(os.path.dirname(__file__))
 parent_directory = os.path.abspath(os.path.join(current_directory, ".."))
 sys.path.insert(0, parent_directory)
 
-from app.dependencies.service_models import ServiceException, Tags
+from app.internal.services.models import ServiceException
 from app.dependencies.functions import get_settings
 from app.dependencies.containers import Container
 from app.dependencies.logger import get_logger
-from app.internal.db.mongo_client import MongoClient
+from app.internal.db.mongo import MongoClient
 from app.routers import teams, admin
 
 logger = get_logger(__name__)

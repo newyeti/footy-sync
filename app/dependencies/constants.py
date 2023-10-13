@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import Depends
 from ..config import Settings
 from ..dependencies.functions import get_settings
-from ..dependencies.service_models import CommonPathParams
+from ..internal.services.models import CommonPathParams
 
 AppSettingsDependency = Annotated[Settings, Depends(get_settings)]
 CommonsPathDependency = Annotated[CommonPathParams, Depends()]

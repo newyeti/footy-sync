@@ -1,4 +1,4 @@
-from app.internal.db.mongo_client import MongoClient
+from app.internal.db.mongo import MongoClient
 
 class TeamRepository:
     
