@@ -16,6 +16,7 @@ class AppSettings(BaseAppSettings):
     redoc_url: str = "/redoc"
     title: str = "Footy Data Sync App"
     version: str = "0.0.1"
+    api_prefix: str = ""
     
     allowed_hosts: List[str] = ["*"]
     
