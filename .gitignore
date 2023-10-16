@@ -5,3 +5,4 @@ data/**
 outputs/**
 credentials/**
 stratch.txt
+.env
