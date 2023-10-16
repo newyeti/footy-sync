@@ -29,17 +29,13 @@ async def sync_teams(path_params: CommonsPathDependency,
                         ) -> Any:
     
     response = await team_service.upsert(path_params=path_params, settings=settings)
-    
-    logger.debug(response)
-    
-    if response.status_code == status.HTTP_200_OK:
-        response = ServiceResponse(season=2023, 
-                                league_id=39,
-                                service="teams",
-                                status= ServiceStatus.success)   
-        return jsonable_encoder(response)
-    else:
-        raise ServiceException(name="teams", message = response.response_data)
+
+    service_response = ServiceResponse(season=2023, 
+                            league_id=39,
+                            service="teams",
+                            status= ServiceStatus.success)   
+    return jsonable_encoder(service_response)
+   
 
             
     

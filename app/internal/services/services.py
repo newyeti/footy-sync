@@ -1,6 +1,7 @@
 import json
 import aiohttp
 import asyncio
+import json
 
 from fastapi import params, status
 from aioredis import Redis
@@ -55,13 +56,16 @@ class ApiService:
                 result = await asyncio.gather(get_request(session=session,
                                 url=url, params=params, headers=headers))
                 
-                logger.info(result[0]) 
+                logger.debug(f"rapid api response= {result[0]}") 
                 
                 api_response = result[0]
                 if api_response.status_code == status.HTTP_200_OK:
                     return api_response
                 else:
-                    raise ServiceException(name="teams", message = api_response.response_data)
+                    logger.error(f"rapidAPI response: url={url}, error={api_response.response_data['message']}")
+                    raise ServiceException(name="teams",
+                                           api_url=url,
+                                           message = api_response.response_data['message'])
                 
             except aiohttp.ClientError as e:
                 raise ServiceException(name="teams", message = str(e))

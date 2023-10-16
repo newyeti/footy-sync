@@ -51,10 +51,13 @@ instrumentator = Instrumentator().instrument(app=app)
 # Decorators
 @app.exception_handler(ServiceException)
 async def service_exception_handler(request: Request, exec: ServiceException):
-    return jsonable_encoder(JSONResponse(
+    return JSONResponse(
         status_code = status.HTTP_400_BAD_REQUEST,
-        content = {"service": exec.name, "message": exec.message}
-    ))
+        content = jsonable_encoder(exec, 
+                                   exclude_none=True, 
+                                   exclude_unset=True,
+                                   exclude_defaults=True),
+    )
 
 # Middleware
 @app.middleware("http")
