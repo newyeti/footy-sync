@@ -1,9 +1,15 @@
 import os
 import sys
+import time
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.exceptions import HTTPException, RequestValidationError
 from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from loguru import logger
+
+from app.api.dependencies.adapter import ContainderAdapter
+from app.api.dependencies.container import Container
 
 # Add the parent directory (app) to sys.path
 current_directory =  os.path.abspath(os.path.dirname(__file__))
@@ -17,7 +23,19 @@ from app.core.events import (
 )
 from app.api.errors.http_error import http_error_handler
 from app.api.errors.validation_error import http422_error_handler
+from app.api.dependencies.middleware import add_process_time_header
 from app.api.routes.api import router as api_router
+
+def get_container() -> Container:
+    adapter = ContainderAdapter()
+    container = Container()
+    adapter.config.redis_settings.from_value(get_app_settings().redis)
+    adapter.config.mongo_settings.from_value(get_app_settings().mongo)
+    container.wire(modules=[__name__, 
+                            "app.api.routes.api",
+                            ])
+
+    return container
 
 
 def get_application() -> FastAPI:
@@ -32,6 +50,8 @@ def get_application() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    
+    application.add_middleware(BaseHTTPMiddleware, dispatch=add_process_time_header)
     
     application.add_event_handler(
         "startup",
@@ -51,3 +71,4 @@ def get_application() -> FastAPI:
 
 
 app = get_application()
+container = get_container()

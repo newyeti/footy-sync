@@ -1,10 +1,15 @@
 import logging
 import sys
 
-from typing import Tuple, List, Dict, Any
+from typing import Tuple, List, Dict, Any, Optional
 from loguru import logger
 
-from app.core.settings.base import BaseAppSettings
+from app.core.settings.base import (
+    BaseAppSettings,
+    MongoSetting, 
+    BigQuerySettings,
+    RedisSetting,
+    RapidApiSettings) 
 from app.core.logging import InterceptHandler
 
 
@@ -17,12 +22,16 @@ class AppSettings(BaseAppSettings):
     title: str = "Footy Data Sync App"
     version: str = "0.0.1"
     api_prefix: str = ""
-    
     allowed_hosts: List[str] = ["*"]
     
     logging_level: int = logging.INFO
     loggers: Tuple[str, str] = ("uvicorn.asgi", "uvicorn.access")
-      
+    
+    mongo: MongoSetting
+    bigquery: BigQuerySettings
+    redis: RedisSetting
+    rapid_api: RapidApiSettings
+       
     class Config:
         validate_assignment = True
         

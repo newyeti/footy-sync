@@ -17,18 +17,18 @@ get_credentials() {
 }
 
 
-environment=$(echo $ENVIRONMENT)
+app_env=$(echo $APP_ENV)
 
-if [[ -z "${environment}" ]]; then
-    environment="dev"
+if [[ -z "${app_env}" ]]; then
+    app_env="dev"
 fi
 
-echo "Setting '${environment}' envrionment variables"
+echo "Setting '${app_env}' envrionment variables"
 
 env_infra="dev"
 env_mongo="dev"
 
-if [[ ${environment} == "prod" ]]; then
+if [[ ${app_env} == "prod" ]]; then
     env_infra="control_cluster"
     env_mongo="prod"
 fi
@@ -65,4 +65,4 @@ export KAFKA=$(printf "${KAFKA_JSON_FMT}" "${KAFKA_BOOTSTRAP_SERVERS}" "${KAFKA_
 API_KEYS_JSON_FMT='{"API_KEYS": "%s"}'
 export RAPID_API=$(printf "${API_KEYS_JSON_FMT}" "${rapid_api_keys}" )
 
-echo "Setting environment variables completed."
+echo "Setting app_env variables completed."
