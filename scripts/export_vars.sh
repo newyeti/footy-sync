@@ -27,11 +27,19 @@ echo "Setting '${app_env}' envrionment variables"
 
 env_infra="dev"
 env_mongo="dev"
+env_file=".env"
 
 if [[ ${app_env} == "prod" ]]; then
     env_infra="control_cluster"
     env_mongo="prod"
+    env_file="prod.env"
 fi
+
+if [[ -f ${env_file} ]]; then
+    rm -rf ${env_file}
+fi
+
+export APP_ENV=${app_env}
 
 #Mongo DB
 MONGO_HOSTNAME=$(get_credentials "mongo" ".${env_mongo}.hostname")
@@ -40,6 +48,7 @@ MONGO_PASSWORD=$(get_credentials "mongo" ".${env_mongo}.password")
 MONGO_DB="test_football"
 MONGO_JSON_FMT='{"HOSTNAME": "%s", "USERNAME": "%s", "PASSWORD": "%s", "DB": "%s"}'
 export MONGO=$(printf "${MONGO_JSON_FMT}" "${MONGO_HOSTNAME}" "${MONGO_USERNAME}" "${MONGO_PASSWORD}" "${MONGO_DB}")
+
 
 #BigQuery
 BIGQUERY_CREDENTIAL_JSON_FMT='{"CREDENTIAL": "%s"}'
@@ -59,10 +68,11 @@ KAFKA_BOOTSTRAP_SERVERS=$(get_credentials "infra" ".${env_infra}.kafka.bootstrap
 KAFKA_USERNAME=$(get_credentials "infra" ".${env_infra}.kafka.username")
 KAFKA_PASSWORD=$(get_credentials "infra" ".${env_infra}.kafka.password")
 KAFKA_JSON_FMT='{"BOOTSTRAP_SERVERS": "%s","USERNAME": "%s", "PASSWORD": "%s"}'
-export KAFKA=$(printf "${KAFKA_JSON_FMT}" "${KAFKA_BOOTSTRAP_SERVERS}" "${KAFKA_USERNAME}" "${KAFKA_PASSWORD}")
+export KAFKA=$(printf "${KAFKA_JSON_FMT}" "${KAFKA_BOOTSTRAP_SERVERS}" "${KAFKA_USERNAME}" "${KAFKA_PASSWORD}") > $env_file
+
 
 #Rapid API Keys (comma separated list)
 API_KEYS_JSON_FMT='{"API_KEYS": "%s"}'
-export RAPID_API=$(printf "${API_KEYS_JSON_FMT}" "${rapid_api_keys}" )
+export RAPID_API=$(printf "${API_KEYS_JSON_FMT}" "${rapid_api_keys}" ) > $env_file
 
 echo "Setting app_env variables completed."

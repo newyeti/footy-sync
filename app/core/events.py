@@ -1,13 +1,7 @@
-from typing import Container, Callable
+from typing import Callable
 from loguru import logger
-
-from dependency_injector.wiring import inject, Provide
-from fastapi import Depends
-
 from app.core.settings.app import AppSettings
-from app.db.events import test_mongodb_connection
-from app.api.dependencies.container import Container
-from app.db.clients.mongo import MongoClient
+
 
 def create_start_app_handler(settings: AppSettings) -> Callable:
     async def start_app() -> None:
@@ -19,7 +13,7 @@ def create_start_app_handler(settings: AppSettings) -> Callable:
 def create_stop_app_handler(settings: AppSettings) -> Callable:
     @logger.catch
     async def stop_app() -> None:
-        ...
+        logger.debug(f"Stopping {settings.title} application")
     
     return stop_app
 

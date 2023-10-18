@@ -6,3 +6,4 @@ outputs/**
 credentials/**
 stratch.txt
 .env
+prod.env
