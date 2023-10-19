@@ -32,7 +32,7 @@ from app.core.config import get_app_settings
 
 container_modules = [
         __name__, 
-        "app.api.routes.api",
+        "app.api.routes.teams",
         "app.core.events",
     ]
 

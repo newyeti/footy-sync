@@ -29,6 +29,7 @@ class RedisSetting(BaseSettings):
 class RapidApiSettings(BaseSettings):
     api_keys: str
     api_hostname: str = "api-football-v1.p.rapidapi.com"
+    teams_endpoint: str = "/v3/teams"
     
     class Config:
         env_prefix = "RAPID_"
