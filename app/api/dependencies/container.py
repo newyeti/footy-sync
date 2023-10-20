@@ -2,7 +2,7 @@ from dependency_injector import containers, providers
 
 from app.api.dependencies.cache import CacheService
 from app.db.clients import redis, mongo
-from app.services.rapid_api_service import RapidApiService
+from app.api.dependencies.rapid_api import RapidApiService
 from app.services.teams import TeamService
 
 
@@ -23,13 +23,15 @@ class Container(containers.DeclarativeContainer):
         provider=redis_pool
     )
 
-    api_service = providers.Factory(
+    rapid_api_service = providers.Factory(
         RapidApiService,
+        settings=config.rapid_api_settings,
         cache_service=cache_service
     )
 
     team_service = providers.Factory(
         TeamService,
+        rapid_api_service=rapid_api_service,
         cache_service=cache_service
     )
     

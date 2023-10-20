@@ -17,8 +17,7 @@ class IService(ABC):
 class ApiService(ABC):
     @abstractmethod
     async def fetch_from_api(self,
-                             settings: Any, 
-                             uri,
+                             endpoint: str,
                              season: int, 
                              league_id: int) -> Any:
         ...

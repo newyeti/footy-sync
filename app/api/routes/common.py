@@ -11,3 +11,4 @@ from app.services.teams import TeamService
 
 AppSettingsDependency = Annotated[AppSettings, Depends(get_app_settings)]
 CommonsPathDependency = Annotated[CommonPathParams, Depends()]
+

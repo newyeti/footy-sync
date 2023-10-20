@@ -28,6 +28,7 @@ from app.api.dependencies.cache import CacheService
 from app.db.clients.mongo import MongoClient
 from app.db.events import test_mongodb_connection, stop_mongodb, test_cache_service
 from app.core.config import get_app_settings
+from app.api.errors.service_error import service_error_handler, ServiceException
 
 
 container_modules = [
@@ -41,6 +42,7 @@ def get_container() -> Container:
     container = Container()
     container.config.redis_settings.from_value(get_app_settings().redis)
     container.config.mongo_settings.from_value(get_app_settings().mongo)
+    container.config.rapid_api_settings.from_value(get_app_settings().rapid_api)
     container.wire(modules=container_modules)
     return container
 
@@ -80,6 +82,7 @@ def get_application() -> FastAPI:
     application.add_middleware(BaseHTTPMiddleware, dispatch=add_process_time_header)
     application.add_exception_handler(HTTPException, http_error_handler)
     application.add_exception_handler(RequestValidationError, http422_error_handler)
+    application.add_exception_handler(ServiceException, service_error_handler)
     application.include_router(api_router, prefix=settings.api_prefix)
     
     return application

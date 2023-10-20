@@ -5,3 +5,4 @@ from starlette.responses import JSONResponse
 
 async def http_error_handler(_: Request, exc: HTTPException) -> JSONResponse:
     return JSONResponse(content={"errors": [exc.detail]}, status_code=exc.status_code)
+
