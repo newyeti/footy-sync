@@ -1,11 +1,19 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Any
 from enum import Enum
+from multidict import CIMultiDictProxy
 
 
 class ApiResponseStatus(Enum):
     success = "success"
     failed = "failed"
+
+
+class HttpResponse:
+    def __init__(self, headers: CIMultiDictProxy[str], status_code: int, response_data: Any) -> None:
+        self.headers = headers
+        self.status_code = status_code
+        self.response_data = response_data
 
 
 class ApiResponse(BaseModel):

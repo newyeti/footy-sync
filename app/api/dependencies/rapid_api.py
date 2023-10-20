@@ -7,7 +7,7 @@ from loguru import logger
 from fastapi import status
 
 from app.core.settings.app import RapidApiSettings
-from app.models.schema.rapid_api_response import HttpApiResponse
+from app.models.schema.response import HttpResponse
 from app.services.interface import ApiService
 from app.api.dependencies.cache import CacheService
 from app.api.errors.service_error import ServiceException
@@ -27,7 +27,7 @@ def get_request_header(settings: RapidApiSettings):
 
 
 async def get_request(session: aiohttp.ClientSession, url: str,
-                      **kwargs: Any) -> HttpApiResponse:
+                      **kwargs: Any) -> HttpResponse:
     try:
         async with session.get(url=url, **kwargs, ssl=False) as response:
             status_code = response.status
@@ -38,7 +38,7 @@ async def get_request(session: aiohttp.ClientSession, url: str,
                 response_data = await response.json()
             else:
                 response_data = await response.text()
-            return HttpApiResponse(headers=headers, status_code=status_code, response_data=response_data)
+            return HttpResponse(headers=headers, status_code=status_code, response_data=response_data)
     except aiohttp.ClientError as e:
         return {"error": f"Error getting data from {url}: {e}"}
     
@@ -65,7 +65,7 @@ async def post_request(session: aiohttp.ClientSession,
             else:
                 response_data = await response.text()
             logger.info(f"status={response.status}, message={response_data}")
-            return HttpApiResponse(headers=headers, status_code=status_code, response_data=response_data)
+            return HttpResponse(headers=headers, status_code=status_code, response_data=response_data)
         
     except aiohttp.ClientError as e:
         return {"error": f"Error posting data to {url}: {e}"}
@@ -83,7 +83,7 @@ class RapidApiService(ApiService):
     async def fetch_from_api(self,
                              endpoint: str,
                              season: int, 
-                             league_id: int) -> HttpApiResponse:
+                             league_id: int) -> HttpResponse:
         url = f"https://{self.settings.api_hostname}{endpoint}"
         headers = get_request_header(settings=self.settings)
         params = {
@@ -97,8 +97,6 @@ class RapidApiService(ApiService):
             try:
                 result = await asyncio.gather(get_request(session=session,
                                 url=url, params=params, headers=headers))
-                
-                logger.debug(f"rapid api response= {result[0]}") 
                 
                 api_response = result[0]
                 if api_response.status_code == status.HTTP_200_OK:

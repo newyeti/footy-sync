@@ -10,7 +10,11 @@ class IService(ABC):
         ...
 
     @abstractmethod
-    async def save_in_db(self) -> None:
+    def convert_to_domain(self, schema: Any) -> Any:
+        ...
+
+    @abstractmethod
+    async def save_in_db(self, domain: Any) -> None:
         ...
     
 
