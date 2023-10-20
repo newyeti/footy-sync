@@ -1,9 +1,7 @@
 .vscode/
 venv/
 __pycache__
-data/**
 outputs/**
 credentials/**
-stratch.txt
 .env
 prod.env

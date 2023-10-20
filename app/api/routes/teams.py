@@ -5,7 +5,7 @@ from loguru import logger
 from dependency_injector.wiring import inject
 
 from app.api.routes.common import CommonsPathDependency, AppSettingsDependency
-from app.models.schema.api import ApiResponse, ApiResponseStatus
+from app.models.schema.response import ApiResponse, ApiResponseStatus
 
 from app.api.dependencies.container import Container
 from app.services.teams import TeamService

@@ -7,7 +7,7 @@ from loguru import logger
 from fastapi import status
 
 from app.core.settings.app import RapidApiSettings
-from app.api.responses.rapid_api_response import HttpApiResponse
+from app.models.schema.rapid_api_response import HttpApiResponse
 from app.services.interface import ApiService
 from app.api.dependencies.cache import CacheService
 from app.api.errors.service_error import ServiceException
