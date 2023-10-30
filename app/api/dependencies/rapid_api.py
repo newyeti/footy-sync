@@ -10,7 +10,7 @@ from app.core.settings.app import RapidApiSettings
 from app.models.schema.response import HttpResponse
 from app.services.interface import ApiService
 from app.api.dependencies.cache import CacheService
-from app.api.errors.service_error import ServiceException
+from app.api.errors.service_error import RapidApiException
 
 
 @lru_cache()
@@ -103,9 +103,9 @@ class RapidApiService(ApiService):
                     return api_response
                 else:
                     logger.error(f"rapidAPI response: url={url}, error={api_response.response_data['message']}")
-                    raise ServiceException(name="teams",
+                    raise RapidApiException(name="teams",
                                             api_url=url,
                                             message = api_response.response_data['message'])
                 
             except aiohttp.ClientError as e:
-                raise ServiceException(name="teams", message = str(e))
+                raise RapidApiException(name="teams", message = str(e))

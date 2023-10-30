@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional, Any
+from app.models.schema.rapid_api_response import RapidApiResponse
 
 class Team(BaseModel):
     id: int
@@ -21,19 +22,17 @@ class Venue(BaseModel):
     image: str
 
 
-class Response(BaseModel):
+class ResponseData(BaseModel):
     team: Team
     venue: Venue
-
-
-class Paging(BaseModel):
-    current: int
-    total: int
 
 class Parameters(BaseModel):
     league: int
     season: int
-
+    
+class Paging(BaseModel):
+    current: int
+    total: int
 
 class TeamInRapidApiResponse(BaseModel):
     get: str
@@ -41,7 +40,8 @@ class TeamInRapidApiResponse(BaseModel):
     errors: Optional[Any]
     results: int
     paging: Paging
-    response: Response
+    response: list[ResponseData]
+    
 
 
 

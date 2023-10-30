@@ -15,4 +15,5 @@ class Team(BaseModel):
     country: str = Field(..., title="Country")
     is_national: bool = Field(..., title="IsNational")
     season: int = Field(default=0, title="Season")
+    logo: str = Field(default="", title="Logo")
 
