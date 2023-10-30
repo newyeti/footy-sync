@@ -29,6 +29,7 @@ from app.db.clients.mongo import MongoClient
 from app.db.events import test_mongodb_connection, stop_mongodb, test_cache_service
 from app.core.config import get_app_settings
 from app.api.errors.service_error import service_error_handler, ServiceException
+from app.api.errors.app_error import app_error_handler, AppException
 
 
 container_modules = [
@@ -83,6 +84,7 @@ def get_application() -> FastAPI:
     application.add_exception_handler(HTTPException, http_error_handler)
     application.add_exception_handler(RequestValidationError, http422_error_handler)
     application.add_exception_handler(ServiceException, service_error_handler)
+    application.add_exception_handler(AppException, app_error_handler)
     application.include_router(api_router, prefix=settings.api_prefix)
     
     return application

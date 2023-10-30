@@ -23,8 +23,7 @@ router = APIRouter()
 async def sync_teams(params: CommonsPathDependency,
                      app_settings: AppSettingsDependency,
                      team_service: TeamService = Depends(Provide[Container.team_service])) -> Any:
-    logger.debug(params)
-    await team_service.sync(season=params.season, league_id=params.league_id)
+    await team_service.sync_template(season=params.season, league_id=params.league_id)
     service_response = ApiResponse(season=2023, 
                             league_id=39,
                             service="teams",
