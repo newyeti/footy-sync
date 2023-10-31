@@ -4,6 +4,8 @@ name: Build service and deploy to GCP
 on:
   push:
     branches: ['main']
+  pull_request:
+    branches: ["develop", "main"]
 
 jobs:
   service:
@@ -70,5 +72,6 @@ jobs:
         docker build -t $IMAGE_LOCATION/$PROJECT_ID/$REPOSITORY_NAME/$SERVICE_NAME:$GIT_TAG .
 
     - name: Push Docker Image to Artifact Registry
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |-
         docker push $IMAGE_LOCATION/$PROJECT_ID/$REPOSITORY_NAME/$SERVICE_NAME:$GIT_TAG
