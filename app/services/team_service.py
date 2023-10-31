@@ -68,6 +68,7 @@ class TeamService(BaseService):
 
 
     async def save_in_db(self, teams: list[Team]) -> None:
-        logger.debug("Saving domain model to database")
+        logger.debug("Saving team domain models to database")
         await self.team_repository.update_bulk(teams)
+        logger.debug("Team domain models saved to database")
     

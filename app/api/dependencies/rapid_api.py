@@ -5,6 +5,7 @@ from functools import lru_cache
 from typing import Any
 from loguru import logger
 from fastapi import status
+from datetime import datetime, timedelta
 
 from app.core.settings.app import RapidApiSettings
 from app.models.schema.response import HttpResponse
@@ -80,10 +81,19 @@ class RapidApiService(ApiService):
         self.settings = settings
         self.cache_service = cache_service
 
+
     async def fetch_from_api(self,
                              endpoint: str,
                              season: int, 
                              league_id: int) -> HttpResponse:
+        cache_key = self.cache_service.get_key(key=self.settings.cache_key,
+                                                suffix=datetime.now().date())
+        api_calls = await self.cache_service.get(cache_key)
+        
+        if int(api_calls) > self.settings.daily_limit:
+            raise RapidApiException(name="teams", message = "Daily limit reached for Rapid API Key.")
+        
+        
         url = f"https://{self.settings.api_hostname}{endpoint}"
         headers = get_request_header(settings=self.settings)
         params = {
@@ -97,6 +107,14 @@ class RapidApiService(ApiService):
             try:
                 result = await asyncio.gather(get_request(session=session,
                                 url=url, params=params, headers=headers))
+                
+                
+                if api_calls is None:
+                    api_calls = "0"
+                
+                await self.cache_service.set(key=cache_key, 
+                                             value= int(api_calls) + 1,
+                                             exp=timedelta(days=self.settings.cache_key_expiry_in_days))
                 
                 api_response = result[0]
                 if api_response.status_code == status.HTTP_200_OK:

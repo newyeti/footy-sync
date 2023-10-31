@@ -30,6 +30,9 @@ class RapidApiSettings(BaseSettings):
     api_keys: str
     api_hostname: str = "api-football-v1.p.rapidapi.com"
     teams_endpoint: str = "/v3/teams"
+    daily_limit: int = 100
+    cache_key: str = "FS::DAILY_RAPID_API_CALLS"
+    cache_key_expiry_in_days: int = 7
     
     class Config:
         env_prefix = "RAPID_"
