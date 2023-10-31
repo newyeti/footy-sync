@@ -19,6 +19,7 @@ jobs:
       PROJECT_ID: ${{vars.PROJECT_ID}}
       SERVICE_NAME: ${{vars.SERVICE_NAME}}
       IMAGE_LOCATION: ${{vars.IMAGE_LOCATION}}
+      REPOSITORY_NAME: ${{vars.REPOSITORY_NAME}}
 
     steps:
     - name: Checkout
@@ -66,8 +67,8 @@ jobs:
     
     - name: Docker Image
       run: |-
-        docker build -t $IMAGE_LOCATION/$PROJECT_ID/$SERVICE_NAME:$GIT_TAG .
+        docker build -t $IMAGE_LOCATION/$PROJECT_ID/$REPOSITORY_NAME/$SERVICE_NAME:$GIT_TAG .
 
     - name: Push Docker Image to Artifact Registry
       run: |-
-        docker push $IMAGE_LOCATION/$PROJECT_ID/$SERVICE_NAME:$GIT_TAG
+        docker push $IMAGE_LOCATION/$PROJECT_ID/$REPOSITORY_NAME/$SERVICE_NAME:$GIT_TAG
