@@ -9,6 +9,8 @@ aioredis
 dependency-injector
 motor
 prometheus-fastapi-instrumentator
+loguru
+py-automapper
 
 #Testing
 pytest
