@@ -45,7 +45,7 @@ export APP_ENV=${app_env}
 MONGO_HOSTNAME=$(get_credentials "mongo" ".${env_mongo}.hostname")
 MONGO_USERNAME=$(get_credentials "mongo" ".${env_mongo}.username")
 MONGO_PASSWORD=$(get_credentials "mongo" ".${env_mongo}.password")
-MONGO_DB="test_football"
+MONGO_DB="football"
 MONGO_JSON_FMT='{"HOSTNAME": "%s", "USERNAME": "%s", "PASSWORD": "%s", "DB": "%s"}'
 export MONGO=$(printf "${MONGO_JSON_FMT}" "${MONGO_HOSTNAME}" "${MONGO_USERNAME}" "${MONGO_PASSWORD}" "${MONGO_DB}")
 

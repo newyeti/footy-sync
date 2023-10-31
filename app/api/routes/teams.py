@@ -8,7 +8,7 @@ from app.api.routes.common import CommonsPathDependency, AppSettingsDependency
 from app.models.schema.response import ApiResponse, ApiResponseStatus
 
 from app.api.dependencies.container import Container
-from app.services.teams import TeamService
+from app.services.team_service import TeamService
 from dependency_injector.wiring import inject, Provide
 
 router = APIRouter()

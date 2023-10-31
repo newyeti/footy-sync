@@ -8,7 +8,7 @@ from fastapi import status
 
 from app.core.settings.app import RapidApiSettings
 from app.models.schema.response import HttpResponse
-from app.services.interface import ApiService
+from app.services.base_service import ApiService
 from app.api.dependencies.cache import CacheService
 from app.api.errors.service_error import RapidApiException
 

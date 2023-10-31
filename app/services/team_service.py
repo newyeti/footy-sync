@@ -1,21 +1,23 @@
 from typing import Any
 from loguru import logger
-import json
 from automapper import mapper
 
 from app.api.dependencies.cache import CacheService
-from app.services.interface import IService
+from app.services.base_service import BaseService
 from app.api.dependencies.rapid_api import RapidApiService
 from app.models.schema.team import TeamInRapidApiResponse
 from app.models.domain.team import Team
+from app.db.repositories.team_repository import TeamRepository
 
-class TeamService(IService):
+class TeamService(BaseService):
 
     def __init__(self, 
                  rapid_api_service: RapidApiService,
-                 cache_service: CacheService) -> None:
+                 cache_service: CacheService,
+                 team_repository: TeamRepository) -> None:
         self.rapid_api_service = rapid_api_service
         self.cache_service = cache_service
+        self.team_repository = team_repository
 
 
     async def call_api(self, season: int, league_id: int) -> Any:
@@ -62,8 +64,10 @@ class TeamService(IService):
             teams.append(team)
             
         logger.debug(teams)
+        return teams
 
 
-    async def save_in_db(self, domain: Team) -> None:
+    async def save_in_db(self, teams: list[Team]) -> None:
         logger.debug("Saving domain model to database")
+        await self.team_repository.update_bulk(teams)
     
