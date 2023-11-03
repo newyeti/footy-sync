@@ -86,7 +86,7 @@ jobs:
     - name: Push Docker Image with Default Tag to Artifact Registry
       if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
       run: |-
-        docker push $IMAGE_LOCATION/$PROJECT_ID/$REPOSITORY_NAME/$SERVICE_NAME:$GIT_TAG
+        docker push $IMAGE_LOCATION/$PROJECT_ID/$REPOSITORY_NAME/$SERVICE_NAME
 
     - name: Push Docker Image with Git Tag to Artifact Registry
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
