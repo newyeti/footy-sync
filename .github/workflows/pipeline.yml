@@ -3,7 +3,7 @@ name: Build service and deploy to GCP
 
 on:
   push:
-    branches: ['main']
+    branches: ['develop', 'main']
   pull_request:
     branches: ["develop", "main"]
 
@@ -54,10 +54,12 @@ jobs:
       id: determine-git-tag
       env:
         COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |-
         bash ./scripts/git_version.sh
         
     - name: Automatic Tagging of Releases
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       id: increment-git-tag
       run: |
         bash ./scripts/git_update.sh -v $GIT_TAG_TYPE
@@ -69,9 +71,25 @@ jobs:
     
     - name: Docker Image
       run: |-
-        docker build -t $IMAGE_LOCATION/$PROJECT_ID/$REPOSITORY_NAME/$SERVICE_NAME:$GIT_TAG .
+        docker build -t $SERVICE_NAME .
 
-    - name: Push Docker Image to Artifact Registry
+    - name: Tag Image with Default
+      if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+      run: |-
+        docker tag $SERVICE_NAME $IMAGE_LOCATION/$PROJECT_ID/$REPOSITORY_NAME/$SERVICE_NAME
+    
+    - name: Tag Image with Git Version
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |-
+        docker tag $SERVICE_NAME $IMAGE_LOCATION/$PROJECT_ID/$REPOSITORY_NAME/$SERVICE_NAME:$GIT_TAG
+
+    - name: Push Docker Image with Default Tag to Artifact Registry
+      if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+      run: |-
+        docker push $IMAGE_LOCATION/$PROJECT_ID/$REPOSITORY_NAME/$SERVICE_NAME:$GIT_TAG
+
+    - name: Push Docker Image with Git Tag to Artifact Registry
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |-
         docker push $IMAGE_LOCATION/$PROJECT_ID/$REPOSITORY_NAME/$SERVICE_NAME:$GIT_TAG
+    
