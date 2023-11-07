@@ -6,10 +6,12 @@ from app.core.settings.app import AppSettings
 from app.core.settings.development import DevAppSettings
 from app.core.settings.production import ProdAppSettings
 
+
 envrionments: Dict[AppEnvTypes, Type[AppSettings]] = {
     AppEnvTypes.dev: DevAppSettings,
     AppEnvTypes.prod: ProdAppSettings
 }
+
 
 @lru_cache
 def get_app_settings() -> AppSettings:

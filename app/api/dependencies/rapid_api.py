@@ -7,7 +7,7 @@ from loguru import logger
 from fastapi import status
 from datetime import datetime, timedelta
 
-from app.core.settings.app import RapidApiSettings
+from app.core.settings.base import RapidApiSetting
 from app.models.schema.response import HttpResponse
 from app.services.base_service import ApiService
 from app.api.dependencies.cache import CacheService
@@ -20,7 +20,7 @@ def get_api_key(keys: str):
     return api_keys[0]
 
 
-def get_request_header(settings: RapidApiSettings):
+def get_request_header(settings: RapidApiSetting):
     return {
             'X-RapidAPI-Key': get_api_key(settings.api_keys),
             'X-RapidAPI-Host': settings.api_hostname
@@ -76,7 +76,7 @@ async def post_request(session: aiohttp.ClientSession,
 class RapidApiService(ApiService):
     
     def __init__(self, 
-                 settings: RapidApiSettings, 
+                 settings: RapidApiSetting, 
                  cache_service: CacheService) -> None:
         self.settings = settings
         self.cache_service = cache_service
@@ -90,7 +90,7 @@ class RapidApiService(ApiService):
                                                 suffix=datetime.now().date())
         api_calls = await self.cache_service.get(cache_key)
         
-        if int(api_calls) > self.settings.daily_limit:
+        if api_calls and int(api_calls) > self.settings.daily_limit:
             raise RapidApiException(name="teams", message = "Daily limit reached for Rapid API Key.")
         
         
