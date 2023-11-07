@@ -14,7 +14,7 @@ class BaseService(ABC):
             await self.save_in_db(domain_obj)
         except RapidApiException as e:
             logger.error(e)
-            raise ServiceException(e)
+            raise ServiceException(name=e.name, api_url=e.api_url, message=e.message)
         except Exception as e:
             logger.error(e)
             raise AppException(message="Oops, something went wrong. Please try again later!")

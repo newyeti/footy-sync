@@ -68,11 +68,11 @@ KAFKA_BOOTSTRAP_SERVERS=$(get_credentials "infra" ".${env_infra}.kafka.bootstrap
 KAFKA_USERNAME=$(get_credentials "infra" ".${env_infra}.kafka.username")
 KAFKA_PASSWORD=$(get_credentials "infra" ".${env_infra}.kafka.password")
 KAFKA_JSON_FMT='{"BOOTSTRAP_SERVERS": "%s","USERNAME": "%s", "PASSWORD": "%s"}'
-export KAFKA=$(printf "${KAFKA_JSON_FMT}" "${KAFKA_BOOTSTRAP_SERVERS}" "${KAFKA_USERNAME}" "${KAFKA_PASSWORD}") > $env_file
+export KAFKA=$(printf "${KAFKA_JSON_FMT}" "${KAFKA_BOOTSTRAP_SERVERS}" "${KAFKA_USERNAME}" "${KAFKA_PASSWORD}")
 
 
 #Rapid API Keys (comma separated list)
 API_KEYS_JSON_FMT='{"API_KEYS": "%s"}'
-export RAPID_API=$(printf "${API_KEYS_JSON_FMT}" "${rapid_api_keys}" ) > $env_file
+export RAPID_API=$(printf "${API_KEYS_JSON_FMT}" "${rapid_api_keys}" ) 
 
 echo "Setting app_env variables completed."

@@ -1,48 +1,5 @@
 from enum import Enum
-from typing import Optional
-
 from pydantic_settings import BaseSettings
-
-class MongoSetting(BaseSettings):
-    hostname: str
-    username: str
-    password: str
-    db: str
-    
-    def get_uri(self) -> str:
-        return f"mongodb+srv://{self.username}:{self.password}@{self.hostname}/?retryWrites=true&w=majority"
-    
-    class Config:
-        env_prefix = "MONGO_"
-
-class RedisSetting(BaseSettings):
-    hostname: str
-    port: int
-    username: Optional[str | None]
-    password: str
-    ssl_enabled: bool = True
-    max_connections: int = 50
-
-    class Config:
-        env_prefix = "REDIS_"
-
-class RapidApiSettings(BaseSettings):
-    api_keys: str
-    api_hostname: str = "api-football-v1.p.rapidapi.com"
-    teams_endpoint: str = "/v3/teams"
-    daily_limit: int = 100
-    cache_key: str = "FS::DAILY_RAPID_API_CALLS"
-    cache_key_expiry_in_days: int = 7
-    
-    class Config:
-        env_prefix = "RAPID_"
-        
-class BigQuerySettings(BaseSettings):
-    credential: str
-    
-    class Config:
-        env_prefix = "BIGQUERY_"
-
 
 class AppEnvTypes(Enum):
     prod: str = "prod"
@@ -57,3 +14,13 @@ class BaseAppSettings(BaseSettings):
         env_file = ".env"
     
 
+class RapidApiSetting(BaseSettings):
+    api_keys: tuple
+    api_hostname: str = "api-football-v1.p.rapidapi.com"
+    teams_endpoint: str = "/v3/teams"
+    daily_limit: int = 100
+    cache_key: str = "FS::DAILY_RAPID_API_CALLS"
+    cache_key_expiry_in_days: int = 7
+    
+    class Config:
+        env_prefix = "RAPID_"

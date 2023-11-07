@@ -1,6 +1,7 @@
 #!/bin/sh
 
-source ./scripts/export_vars.sh
+# source ./scripts/export_vars.sh
+source ./scripts/env.sh
 
 cd app
 

@@ -1,10 +1,10 @@
 from aioredis import Redis
 from typing import AsyncIterator
 
-from app.core.settings.base import RedisSetting
+from app.core.settings.infra import RedisSettings
 
 class RedisClient:
-    async def init_redis_pool(settings: RedisSetting) -> AsyncIterator[Redis]:
+    async def init_redis_pool(settings: RedisSettings) -> AsyncIterator[Redis]:
         session = Redis(host=settings.hostname,
                         port=settings.port,
                         password=settings.password, 

@@ -1,17 +1,12 @@
 import logging
 import sys
 
-from typing import Tuple, List, Dict, Any, Optional
+from typing import Tuple, List, Dict, Any
 from loguru import logger
 
-from app.core.settings.base import (
-    BaseAppSettings,
-    MongoSetting, 
-    BigQuerySettings,
-    RedisSetting,
-    RapidApiSettings) 
+from app.core.settings.base import BaseAppSettings, RapidApiSetting
+from app.core.settings.infra import InfraSettings
 from app.core.logging import InterceptHandler
-
 
 class AppSettings(BaseAppSettings):
     is_debug: bool = False
@@ -27,10 +22,8 @@ class AppSettings(BaseAppSettings):
     logging_level: int = logging.INFO
     loggers: Tuple[str, str] = ("uvicorn.asgi", "uvicorn.access")
     
-    mongo: MongoSetting
-    bigquery: BigQuerySettings
-    redis: RedisSetting
-    rapid_api: RapidApiSettings
+    infra: InfraSettings
+    rapid_api: RapidApiSetting
        
     class Config:
         validate_assignment = True

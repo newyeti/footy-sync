@@ -15,10 +15,6 @@ parent_directory = os.path.abspath(os.path.join(current_directory, ".."))
 sys.path.insert(0, parent_directory)
 
 from app.core.config import get_app_settings
-from app.core.events import (
-    create_start_app_handler,
-    create_stop_app_handler
-)
 from app.api.errors.http_error import http_error_handler
 from app.api.errors.validation_error import http422_error_handler
 from app.api.dependencies.middleware import add_process_time_header
@@ -41,8 +37,8 @@ container_modules = [
 
 def get_container() -> Container:
     container = Container()
-    container.config.redis_settings.from_value(get_app_settings().redis)
-    container.config.mongo_settings.from_value(get_app_settings().mongo)
+    container.config.redis_settings.from_value(get_app_settings().infra.redis)
+    container.config.mongo_settings.from_value(get_app_settings().infra.mongo)
     container.config.rapid_api_settings.from_value(get_app_settings().rapid_api)
     container.wire(modules=container_modules)
     return container
@@ -70,8 +66,7 @@ async def lifespan(app: FastAPI):
 def get_application() -> FastAPI:
     settings = get_app_settings()
     settings.configure_logging()
-    application = FastAPI(lifespan=lifespan, **settings.fastapi_kwargs)
-    
+    application = FastAPI(lifespan=lifespan, **settings.fastapi_kwargs) 
     application.add_middleware(
         CORSMiddleware,
         allow_origins=settings.allowed_hosts,

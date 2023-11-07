@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.11-slim-bullseye
+FROM python:3.10.13-slim-bullseye
 
 # Set the working directory to /app
 WORKDIR /app
@@ -8,7 +8,6 @@ WORKDIR /app
 WORKDIR /app
 
 COPY ./requirements.txt /app/requirements.txt
-COPY ./scripts/* /app/
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
@@ -16,5 +15,4 @@ RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 COPY ./app /app
 
 # Run app.py when the container launches
-CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "80"]
-# CMD ["/app/start_app.sh"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

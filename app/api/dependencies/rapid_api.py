@@ -7,7 +7,7 @@ from loguru import logger
 from fastapi import status
 from datetime import datetime, timedelta
 
-from app.core.settings.app import RapidApiSettings
+from app.core.settings.base import RapidApiSetting
 from app.models.schema.response import HttpResponse
 from app.services.base_service import ApiService
 from app.api.dependencies.cache import CacheService
@@ -15,14 +15,13 @@ from app.api.errors.service_error import RapidApiException
 
 
 @lru_cache()
-def get_api_key(keys: str):
-    api_keys = keys.split(",")
+def get_api_key(api_keys: tuple[str]) -> str:
     return api_keys[0]
 
 
-def get_request_header(settings: RapidApiSettings):
+def get_request_header(settings: RapidApiSetting):
     return {
-            'X-RapidAPI-Key': get_api_key(settings.api_keys),
+            'X-RapidAPI-Key': get_api_key(api_keys=settings.api_keys),
             'X-RapidAPI-Host': settings.api_hostname
         }
 
@@ -76,7 +75,7 @@ async def post_request(session: aiohttp.ClientSession,
 class RapidApiService(ApiService):
     
     def __init__(self, 
-                 settings: RapidApiSettings, 
+                 settings: RapidApiSetting, 
                  cache_service: CacheService) -> None:
         self.settings = settings
         self.cache_service = cache_service
@@ -89,11 +88,10 @@ class RapidApiService(ApiService):
         cache_key = self.cache_service.get_key(key=self.settings.cache_key,
                                                 suffix=datetime.now().date())
         api_calls = await self.cache_service.get(cache_key)
-        
-        if int(api_calls) > self.settings.daily_limit:
+        if api_calls and int(api_calls) > self.settings.daily_limit:
             raise RapidApiException(name="teams", message = "Daily limit reached for Rapid API Key.")
         
-        
+ 
         url = f"https://{self.settings.api_hostname}{endpoint}"
         headers = get_request_header(settings=self.settings)
         params = {
