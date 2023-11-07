@@ -9,7 +9,7 @@ else
 fi
 
 if [[ -z "${RAPID_API}" ]]; then
-  echo "Environment variable 'INFRA' is not set."
+  echo "Environment variable 'RAPID_API' is not set."
 else 
   api_keys=$(echo $RAPID_API | base64 --decode)
   echo $api_keys
