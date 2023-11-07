@@ -18,5 +18,3 @@ COPY ./scripts/start_app.sh /app/scripts/start.sh
 
 ENTRYPOINT [ "./scripts/start.sh" ] 
 
-# Run app.py when the container launches
-# CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
