@@ -15,7 +15,7 @@ class BaseAppSettings(BaseSettings):
     
 
 class RapidApiSetting(BaseSettings):
-    api_keys: str
+    api_keys: tuple
     api_hostname: str = "api-football-v1.p.rapidapi.com"
     teams_endpoint: str = "/v3/teams"
     daily_limit: int = 100
