@@ -12,7 +12,7 @@ async def test_mongodb_connection(mongo_db: MongoClient):
     try:
         is_connected = await mongo_db.is_connected()
         logger.debug(is_connected)
-        logger.info(f"Connected to MongoDB -  {os.getenv('ENVIRONMENT', 'DEV')} environment!")
+        logger.info(f"Connected to MongoDB -  {os.getenv('APP_ENV', 'DEV').upper()} environment!")
     except Exception as e:
         raise DBConnectionError(e)
 
@@ -35,6 +35,6 @@ async def test_cache_service(cache_service: CacheService):
         value = await cache_service.get("test_key")
         await cache_service.delete("test_key")
         logger.debug(f"Cache Provider: {value}")
-        logger.info(f"Connected to Cache Provider - {os.getenv('ENVIRONMENT', 'DEV')} environment!")
+        logger.info(f"Connected to Cache Provider - {os.getenv('APP_ENV', 'DEV').upper()} environment!")
     except Exception as e:
         raise DBConnectionError(e)
