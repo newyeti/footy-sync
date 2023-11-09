@@ -15,17 +15,18 @@ parent_directory = os.path.abspath(os.path.join(current_directory, ".."))
 sys.path.insert(0, parent_directory)
 
 from app.core.config import get_app_settings
-from app.api.errors.http_error import http_error_handler
-from app.api.errors.validation_error import http422_error_handler
-from app.api.dependencies.middleware import add_process_time_header
-from app.api.routes.api import router as api_router
-from app.api.dependencies.container import Container
-from app.api.dependencies.cache import CacheService
-from app.db.clients.mongo import MongoClient
-from app.db.events import test_mongodb_connection, stop_mongodb, test_cache_service
 from app.core.config import get_app_settings
 from app.api.errors.service_error import service_error_handler, ServiceException
 from app.api.errors.app_error import app_error_handler, AppException
+from app.api.errors.http_error import http_error_handler
+from app.api.dependencies.middleware import add_process_time_header
+from app.api.dependencies.container import Container
+from app.api.dependencies.cache import CacheService
+from app.db.clients.mongo import MongoClient
+from app.db.events import test_mongodb_connection, stop_mongodb, test_cache_service, test_bigquery_connection
+from app.db.clients.bigquery import BigQueryClient
+from app.api.routes.api import router as api_router
+from app.api.errors.validation_error import http422_error_handler
 
 
 container_modules = [
@@ -39,6 +40,8 @@ def get_container() -> Container:
     container = Container()
     container.config.redis_settings.from_value(get_app_settings().infra.redis)
     container.config.mongo_settings.from_value(get_app_settings().infra.mongo)
+    container.config.bigquery_settings.from_value(
+        get_app_settings().infra.bigquery)
     container.config.rapid_api_settings.from_value(get_app_settings().rapid_api)
     container.wire(modules=container_modules)
     return container
@@ -46,9 +49,14 @@ def get_container() -> Container:
 
 @inject
 async def startup(mongo_db: MongoClient = Depends(Provide[Container.mongo_db]),
-                  cache_service: CacheService = Depends(Provide[Container.cache_service])):
+                  cache_service: CacheService = Depends(
+                      Provide[Container.cache_service]),
+                  bigquery_client: BigQueryClient = Depends(
+                      Provide[Container.bigquery])
+                  ):
     await test_mongodb_connection(mongo_db)
     await test_cache_service(cache_service)
+    await test_bigquery_connection(bigquery_client)
 
 
 @inject

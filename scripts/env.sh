@@ -20,5 +20,6 @@ rapid_api_keys=`gcloud secrets versions access latest --secret=rapid-api-keys`
 
 export INFRA=$(echo $infrastructure_cred | base64 --decode)
 export RAPID_API=$(echo $rapid_api_keys | base64 --decode)
+export GOOGLE_CLOUD_PROJECT="newyeti"
 
 echo "Setting app_env variables completed."

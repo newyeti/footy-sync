@@ -1,7 +1,7 @@
 from dependency_injector import containers, providers
 
 from app.api.dependencies.cache import CacheService
-from app.db.clients import redis, mongo
+from app.db.clients import redis, mongo, bigquery
 from app.api.dependencies.rapid_api import RapidApiService
 from app.services.team_service import TeamService
 from app.db.repositories.team_repository import TeamRepository
@@ -19,6 +19,10 @@ class Container(containers.DeclarativeContainer):
         mongo.MongoClient, settings=config.mongo_settings
     )
     
+    bigquery = providers.Singleton(
+        bigquery.BigQueryClient, settings=config.bigquery_settings
+    )
+
     cache_service = providers.Factory(
         CacheService,
         provider=redis_pool
