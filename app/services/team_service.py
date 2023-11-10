@@ -7,17 +7,20 @@ from app.services.base_service import BaseService
 from app.api.dependencies.rapid_api import RapidApiService
 from app.models.schema.team import TeamInRapidApiResponse
 from app.models.domain.team import Team
-from app.db.repositories.team_repository import TeamRepository
+from app.db.repositories.mongo.team_repository import TeamRepository as MongoTeamRepository
+from app.db.repositories.bigquery.team_repository import TeamRepository as BigQueryTeamRepository
 
 class TeamService(BaseService):
 
     def __init__(self, 
                  rapid_api_service: RapidApiService,
                  cache_service: CacheService,
-                 team_repository: TeamRepository) -> None:
+                 mongo_team_repository: MongoTeamRepository,
+                 bigquery_team_repository: BigQueryTeamRepository) -> None:
         self.rapid_api_service = rapid_api_service
         self.cache_service = cache_service
-        self.team_repository = team_repository
+        self.mongo_team_repository = mongo_team_repository
+        self.bigquery_team_repository = bigquery_team_repository
 
 
     async def call_api(self, season: int, league_id: int) -> Any:
@@ -68,7 +71,15 @@ class TeamService(BaseService):
 
 
     async def save_in_db(self, teams: list[Team]) -> None:
-        logger.debug("Saving team domain models to database")
-        await self.team_repository.update_bulk(teams)
-        logger.debug("Team domain models saved to database")
-    
+        logger.debug("Saving team domain models in database")
+        # await self._save_in_mongo(teams=teams)
+        await self._save_in_bigquery(teams=teams)
+        logger.debug("Saving team domain models in database")
+
+    async def _save_in_mongo(self, teams: list[Team]) -> None:
+        logger.debug("Saving team domain models in Mongo database")
+        await self.mongo_team_repository.update_bulk(teams)
+        logger.debug("Team domain models saved in Mongo database")
+
+    async def _save_in_bigquery(self, teams: list[Team]) -> None:
+        await self.bigquery_team_repository.findOne({})

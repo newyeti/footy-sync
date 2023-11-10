@@ -12,6 +12,8 @@ prometheus-fastapi-instrumentator
 loguru
 py-automapper
 google-cloud-bigquery
+pandas
+db-dtypes
 
 #Testing
 pytest
