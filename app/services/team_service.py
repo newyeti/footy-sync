@@ -89,7 +89,7 @@ class TeamService(BaseService):
                                                                  "team_id": team.team_id
                                                                  })
             logger.debug(
-                f"Team {team.name} already exists. New row will not be inserted.")
+                f"Team: {team.name} already exists. New row will not be inserted.")
 
             if count == 0:
                 new_teams.append(team.model_dump())
