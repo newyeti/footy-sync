@@ -72,7 +72,7 @@ class TeamService(BaseService):
 
     async def save_in_db(self, teams: list[Team]) -> None:
         logger.debug("Saving team domain models in database")
-        # await self._save_in_mongo(teams=teams)
+        await self._save_in_mongo(teams=teams)
         await self._save_in_bigquery(teams=teams)
         logger.debug("Saving team domain models in database")
 
@@ -82,4 +82,17 @@ class TeamService(BaseService):
         logger.debug("Team domain models saved in Mongo database")
 
     async def _save_in_bigquery(self, teams: list[Team]) -> None:
-        await self.bigquery_team_repository.findOne({})
+        new_teams = []
+        for team in teams:
+            count = await self.bigquery_team_repository.findOne({"season": team.season,
+                                                                 "league_id": team.league_id,
+                                                                 "team_id": team.team_id
+                                                                 })
+            logger.debug(
+                f"Team {team.name} already exists. New row will not be inserted.")
+
+            if count == 0:
+                new_teams.append(team.model_dump())
+
+        if len(new_teams) > 0:
+            await self.bigquery_team_repository.update_bulk(new_teams)
