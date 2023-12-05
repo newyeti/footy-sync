@@ -1,5 +1,5 @@
 from typing import Any
-from loguru import logger
+# from loguru import logger
 from automapper import mapper
 
 from app.api.dependencies.cache import CacheService
@@ -9,6 +9,8 @@ from app.models.schema.team import TeamInRapidApiResponse
 from app.models.domain.team import Team
 from app.db.repositories.mongo.team_repository import TeamRepository as MongoTeamRepository
 from app.db.repositories.bigquery.team_repository import TeamRepository as BigQueryTeamRepository
+
+import logging as logger
 
 class TeamService(BaseService):
 
