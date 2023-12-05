@@ -19,3 +19,12 @@ docker-run:
 docker-stop:
 	docker stop newyeti-container
 	docker rm newyeti-container
+
+compose-build:
+	docker-compose build
+
+compose-up:
+	docker-compose up -d
+
+compose-down:
+	docker-compose down

@@ -5,3 +5,4 @@ outputs/**
 credentials/**
 .env
 prod.env
+grafana_data/**
