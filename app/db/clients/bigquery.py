@@ -8,10 +8,12 @@ from loguru import logger
 class BigQueryClient:
 
   def __init__(self, settings: BigQuerySettings) -> None:
-
+    credential_json = ""
     try:
 
       credential_json = self._create_credential_file(settings.credential)
+      os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_json
+
       self.client = bigquery.Client(
           project=settings.project).from_service_account_json(credential_json)
       self.project_id = settings.project

@@ -1,0 +1,48 @@
+x-logging: &default-logging
+  driver: loki
+  options:
+    loki-url: 'http://localhost:3100/api/prom/push'
+    loki-pipeline-stages: |
+      - multiline:
+          firstline: '^\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2}'
+          max_wait_time: 3s
+      - regex:
+          expression: '^(?P<time>\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2},d{3}) (?P<message>(?s:.*))$$'
+
+version: "3.4"
+
+services:
+  loki:
+    image: grafana/loki:2.8.3
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+  
+  footy-sync:
+    build: ./
+    container_name: footy-sync
+    image: newyeti/footy-sync
+    ports:
+      - "8001:8000"
+    depends_on:
+      - loki
+    logging: *default-logging
+    environment:
+      APP_NAME: footy-sync
+      APP_ENV: dev
+      INFRA: $INFRA
+      RAPID_API: $RAPID_API
+  
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./etc/prometheus:/workspace
+    command:
+      - --config.file=/workspace/prometheus.yml
+      - --enable-feature=exemplar-storage
+    depends_on:
+      - loki
+    logging: *default-logging
+
