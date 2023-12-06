@@ -33,6 +33,7 @@ from app.utils import PrometheusMiddleware, metrics, setting_otlp
 APP_NAME = os.environ.get("APP_NAME", "footy-sync")
 EXPOSE_PORT = os.environ.get("EXPOSE_PORT", 8000)
 OTLP_GRPC_ENDPOINT = os.environ.get("OTLP_GRPC_ENDPOINT", "http://tempo:4317")
+OLTP_ENABLED = os.environ.get("OLTP_ENABLED", True)
 
 container_modules = [
         __name__, 
@@ -102,7 +103,9 @@ def get_application() -> FastAPI:
 
 app = get_application()
 container = get_container()
-setting_otlp(app=app, app_name=APP_NAME, endpoint=OTLP_GRPC_ENDPOINT)
+
+if OLTP_ENABLED:
+    setting_otlp(app=app, app_name=APP_NAME, endpoint=OTLP_GRPC_ENDPOINT)
 
 class EndpointFilter(logging.Filter):
     # Uvicorn endpoint access log filter
