@@ -1,12 +1,13 @@
 import os
 import sys
+import uvicorn
+import logging
 
 from dependency_injector.wiring import inject, Provide
 from fastapi import FastAPI, Depends
 from fastapi.exceptions import HTTPException, RequestValidationError
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
-from loguru import logger
 from contextlib import asynccontextmanager
 
 # Add the parent directory (app) to sys.path
@@ -27,7 +28,11 @@ from app.db.events import test_mongodb_connection, stop_mongodb, test_cache_serv
 from app.db.clients.bigquery import BigQueryClient
 from app.api.routes.api import router as api_router
 from app.api.errors.validation_error import http422_error_handler
+from app.utils import PrometheusMiddleware, metrics, setting_otlp
 
+APP_NAME = os.environ.get("APP_NAME", "footy-sync")
+EXPOSE_PORT = os.environ.get("EXPOSE_PORT", 8000)
+OTLP_GRPC_ENDPOINT = os.environ.get("OTLP_GRPC_ENDPOINT", "http://tempo:4317")
 
 container_modules = [
         __name__, 
@@ -84,16 +89,31 @@ def get_application() -> FastAPI:
     )
     
     application.add_middleware(BaseHTTPMiddleware, dispatch=add_process_time_header)
+    application.add_middleware(PrometheusMiddleware, app_name=APP_NAME)
     application.add_exception_handler(HTTPException, http_error_handler)
     application.add_exception_handler(RequestValidationError, http422_error_handler)
     application.add_exception_handler(ServiceException, service_error_handler)
     application.add_exception_handler(AppException, app_error_handler)
     application.include_router(api_router, prefix=settings.api_prefix)
+    application.add_route("/metrics", metrics)
     
     return application
 
 
 app = get_application()
 container = get_container()
+setting_otlp(app=app, app_name=APP_NAME, endpoint=OTLP_GRPC_ENDPOINT)
 
+class EndpointFilter(logging.Filter):
+    # Uvicorn endpoint access log filter
+    def filter(self, record: logging.LogRecord) -> bool:
+        return record.getMessage().find("GET /metrics") == -1
 
+# Filter out /endpoint
+logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
+
+if __name__ == "__main__":
+    # update uvicorn access logger format
+    log_config = uvicorn.config.LOGGING_CONFIG
+    log_config["formatters"]["access"]["fmt"] = "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] [trace_id=%(otelTraceID)s span_id=%(otelSpanID)s resource.service.name=%(otelServiceName)s] - %(message)s"
+    uvicorn.run(app, host="0.0.0.0", port=EXPOSE_PORT, log_config=log_config)
