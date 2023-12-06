@@ -5,8 +5,7 @@ from loguru import logger
 from app.api.errors.service_error import ServiceException, RapidApiException
 from app.api.errors.app_error import AppException
 
-class BaseService(ABC):
-
+class BaseService(ABC):    
     async def sync_template(self, season: int, league_id: int) -> Any:
         try:
             schema_obj = await self.call_api(season=season, league_id=league_id)

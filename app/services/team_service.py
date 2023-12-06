@@ -9,6 +9,7 @@ from app.models.schema.team import TeamInRapidApiResponse
 from app.models.domain.team import Team
 from app.db.repositories.mongo.team_repository import TeamRepository as MongoTeamRepository
 from app.db.repositories.bigquery.team_repository import TeamRepository as BigQueryTeamRepository
+from opentelemetry import trace
 
 import logging as logger
 
@@ -19,6 +20,7 @@ class TeamService(BaseService):
                  cache_service: CacheService,
                  mongo_team_repository: MongoTeamRepository,
                  bigquery_team_repository: BigQueryTeamRepository) -> None:
+        self.tracer = trace.get_tracer(__name__)
         self.rapid_api_service = rapid_api_service
         self.cache_service = cache_service
         self.mongo_team_repository = mongo_team_repository
@@ -28,9 +30,10 @@ class TeamService(BaseService):
     async def call_api(self, season: int, league_id: int) -> Any:
         logger.info(f"TeamService:fetch_from_api - season={season}, league_id={league_id}")
         api_endpoint = self.rapid_api_service.settings.teams_endpoint
-        api_response = await self.rapid_api_service.fetch_from_api(endpoint=api_endpoint, 
-                                              season=season, 
-                                              league_id=league_id)
+        with self.tracer.start_as_current_span("team.fetch.from.api"):
+            api_response = await self.rapid_api_service.fetch_from_api(endpoint=api_endpoint, 
+                                                season=season, 
+                                                league_id=league_id)
         
         logger.debug(api_response.response_data)
         
@@ -74,8 +77,11 @@ class TeamService(BaseService):
 
     async def save_in_db(self, teams: list[Team]) -> None:
         logger.debug("Saving team domain models in database")
-        await self._save_in_mongo(teams=teams)
-        await self._save_in_bigquery(teams=teams)
+        with self.tracer.start_as_current_span("mongo.team.save"):
+            await self._save_in_mongo(teams=teams)
+            
+        with self.tracer.start_as_current_span("bigquery.team.save"):
+            await self._save_in_bigquery(teams=teams)
         logger.debug("Saving team domain models in database")
 
     async def _save_in_mongo(self, teams: list[Team]) -> None:
@@ -86,10 +92,11 @@ class TeamService(BaseService):
     async def _save_in_bigquery(self, teams: list[Team]) -> None:
         new_teams = []
         for team in teams:
-            count = await self.bigquery_team_repository.findOne({"season": team.season,
-                                                                 "league_id": team.league_id,
-                                                                 "team_id": team.team_id
-                                                                 })
+            with self.tracer.start_as_current_span("bigquery.team.find.one"):
+                count = await self.bigquery_team_repository.findOne({"season": team.season,
+                                                                    "league_id": team.league_id,
+                                                                    "team_id": team.team_id
+                                                                    })
             logger.debug(
                 f"Team: {team.name} already exists. New row will not be inserted.")
 
@@ -97,4 +104,5 @@ class TeamService(BaseService):
                 new_teams.append(team.model_dump())
 
         if len(new_teams) > 0:
-            await self.bigquery_team_repository.update_bulk(new_teams)
+            with self.tracer.start_as_current_span("bigquery.team.save.bulk"):
+                await self.bigquery_team_repository.update_bulk(new_teams)
