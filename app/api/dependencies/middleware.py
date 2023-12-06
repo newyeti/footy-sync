@@ -1,7 +1,7 @@
 import time
 
 from fastapi import Request
-from loguru import logger
+import logging as logger
 
 async def add_process_time_header(request: Request, call_next):
     start_time = time.time()

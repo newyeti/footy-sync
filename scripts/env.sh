@@ -18,7 +18,8 @@ export APP_ENV=${app_env}
 infrastructure_cred=`gcloud secrets versions access latest --secret=footy_cred_dev`
 rapid_api_keys=`gcloud secrets versions access latest --secret=rapid-api-keys`
 
-export INFRA=$infrastructure_cred
-export RAPID_API=$rapid_api_keys
+export INFRA=$(echo $infrastructure_cred | base64 --decode)
+export RAPID_API=$(echo $rapid_api_keys | base64 --decode)
+export GOOGLE_CLOUD_PROJECT="newyeti"
 
 echo "Setting app_env variables completed."

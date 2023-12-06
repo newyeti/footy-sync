@@ -88,6 +88,9 @@ class RapidApiService(ApiService):
         cache_key = self.cache_service.get_key(key=self.settings.cache_key,
                                                 suffix=datetime.now().date())
         api_calls = await self.cache_service.get(cache_key)
+        
+        logger.debug(f"Daily API calls: {api_calls}, Daily Limit: {self.settings.daily_limit}")
+        
         if api_calls and int(api_calls) > self.settings.daily_limit:
             raise RapidApiException(name="teams", message = "Daily limit reached for Rapid API Key.")
         
@@ -111,7 +114,7 @@ class RapidApiService(ApiService):
                     api_calls = "0"
                 
                 await self.cache_service.set(key=cache_key, 
-                                             value= int(api_calls) + 1,
+                                             value= str(int(api_calls) + 1),
                                              exp=timedelta(days=self.settings.cache_key_expiry_in_days))
                 
                 api_response = result[0]

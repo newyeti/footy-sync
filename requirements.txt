@@ -11,6 +11,16 @@ motor
 prometheus-fastapi-instrumentator
 loguru
 py-automapper
+google-cloud-bigquery
+pandas==2.1.3
+db-dtypes
+
+#Observablity
+prometheus-client==0.19.0
+opentelemetry-distro==0.42b0
+opentelemetry-instrumentation-fastapi==0.42b0
+opentelemetry-instrumentation-logging==0.42b0
+opentelemetry-exporter-otlp==1.21.0
 
 #Testing
 pytest

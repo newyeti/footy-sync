@@ -13,6 +13,8 @@ COPY ./requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
 COPY ./app /app
+COPY ./scripts/dockerenv.sh /app/scripts/env.sh
+COPY ./scripts/start_app.sh /app/scripts/start.sh
 
-# Run app.py when the container launches
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT [ "./scripts/start.sh" ] 
+

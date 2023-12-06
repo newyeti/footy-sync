@@ -27,6 +27,7 @@ class RedisSettings(BaseSettings):
 
         
 class BigQuerySettings(BaseSettings):
+    project: str
     credential: str
     dataset: str
     

@@ -1,8 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
-# source ./scripts/export_vars.sh
-source ./scripts/env.sh
+. ./scripts/env.sh
 
-cd app
+current_dir=$(echo $(basename $(pwd)))
 
-uvicorn main:app --host "0.0.0.0" --port "8000" --reload
+if [[ "${current_dir}" != "app" ]]; then
+  cd app
+fi
+
+python main.py
