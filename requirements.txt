@@ -15,6 +15,10 @@ google-cloud-bigquery
 pandas==2.1.3
 db-dtypes
 
+#Authentication
+pyjwt[crypto]
+certifi
+
 #Observablity
 prometheus-client==0.19.0
 opentelemetry-distro==0.42b0

@@ -16,7 +16,6 @@ parent_directory = os.path.abspath(os.path.join(current_directory, ".."))
 sys.path.insert(0, parent_directory)
 
 from app.core.config import get_app_settings
-from app.core.config import get_app_settings
 from app.api.errors.service_error import service_error_handler, ServiceException
 from app.api.errors.app_error import app_error_handler, AppException
 from app.api.errors.http_error import http_error_handler
@@ -33,7 +32,6 @@ from app.utils import PrometheusMiddleware, metrics, setting_otlp
 APP_NAME = os.environ.get("APP_NAME", "footy-sync")
 EXPOSE_PORT = os.environ.get("EXPOSE_PORT", 8000)
 OTLP_GRPC_ENDPOINT = os.environ.get("OTLP_GRPC_ENDPOINT", "http://tempo:4317")
-OLTP_ENABLED = os.environ.get("OLTP_ENABLED", True)
 
 container_modules = [
         __name__, 
@@ -103,9 +101,7 @@ def get_application() -> FastAPI:
 
 app = get_application()
 container = get_container()
-
-if OLTP_ENABLED:
-    setting_otlp(app=app, app_name=APP_NAME, endpoint=OTLP_GRPC_ENDPOINT)
+setting_otlp(app=app, app_name=APP_NAME, endpoint=OTLP_GRPC_ENDPOINT)
 
 class EndpointFilter(logging.Filter):
     # Uvicorn endpoint access log filter
