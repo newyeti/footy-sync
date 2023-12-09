@@ -4,7 +4,7 @@ import sys
 from typing import Tuple, List, Dict, Any
 from loguru import logger
 
-from app.core.settings.base import BaseAppSettings, RapidApiSetting
+from app.core.settings.base import BaseAppSettings, RapidApiSetting, AuthSettings
 from app.core.settings.infra import InfraSettings
 from app.core.logging import InterceptHandler
 
@@ -24,6 +24,7 @@ class AppSettings(BaseAppSettings):
     
     infra: InfraSettings
     rapid_api: RapidApiSetting
+    auth0: AuthSettings
        
     class Config:
         validate_assignment = True
