@@ -16,11 +16,10 @@ parent_directory = os.path.abspath(os.path.join(current_directory, ".."))
 sys.path.insert(0, parent_directory)
 
 from app.core.config import get_app_settings
-from app.core.config import get_app_settings
 from app.api.errors.service_error import service_error_handler, ServiceException
 from app.api.errors.app_error import app_error_handler, AppException
 from app.api.errors.http_error import http_error_handler
-from app.api.dependencies.middleware import add_process_time_header
+from app.api.dependencies.middleware import add_process_time_header, PrometheusMiddleware
 from app.api.dependencies.container import Container
 from app.api.dependencies.cache import CacheService
 from app.db.clients.mongo import MongoClient
@@ -28,12 +27,11 @@ from app.db.events import test_mongodb_connection, stop_mongodb, test_cache_serv
 from app.db.clients.bigquery import BigQueryClient
 from app.api.routes.api import router as api_router
 from app.api.errors.validation_error import http422_error_handler
-from app.utils import PrometheusMiddleware, metrics, setting_otlp
+from app.api.utils import setting_otlp
 
 APP_NAME = os.environ.get("APP_NAME", "footy-sync")
 EXPOSE_PORT = os.environ.get("EXPOSE_PORT", 8000)
 OTLP_GRPC_ENDPOINT = os.environ.get("OTLP_GRPC_ENDPOINT", "http://tempo:4317")
-OLTP_ENABLED = os.environ.get("OLTP_ENABLED", True)
 
 container_modules = [
         __name__, 
@@ -96,16 +94,13 @@ def get_application() -> FastAPI:
     application.add_exception_handler(ServiceException, service_error_handler)
     application.add_exception_handler(AppException, app_error_handler)
     application.include_router(api_router, prefix=settings.api_prefix)
-    application.add_route("/metrics", metrics)
     
     return application
 
 
 app = get_application()
 container = get_container()
-
-if OLTP_ENABLED:
-    setting_otlp(app=app, app_name=APP_NAME, endpoint=OTLP_GRPC_ENDPOINT)
+setting_otlp(app=app, app_name=APP_NAME, endpoint=OTLP_GRPC_ENDPOINT)
 
 class EndpointFilter(logging.Filter):
     # Uvicorn endpoint access log filter

@@ -11,7 +11,7 @@ class BaseAppSettings(BaseSettings):
     app_env: AppEnvTypes = AppEnvTypes.prod
     
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
     
 
 class RapidApiSetting(BaseSettings):
@@ -24,3 +24,13 @@ class RapidApiSetting(BaseSettings):
     
     class Config:
         env_prefix = "RAPID_"
+
+class AuthSettings(BaseSettings):
+    domain: str
+    api_audience: str
+    issuer: str
+    algorithm: str
+    
+    class Config:
+        env_prefix = "AUTH0_"
+

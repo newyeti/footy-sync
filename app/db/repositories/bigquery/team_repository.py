@@ -37,9 +37,9 @@ class TeamRepository(BaseRepository):
             self.query_table, json_rows=rows_to_insert)
 
         if errors == []:
-            print("New rows have been added.")
+            logger.info("New rows have been added.")
         else:
-            print("Encountered errors while inserting rows: {}".format(errors))
+            logger.error("Encountered errors while inserting rows: {}".format(errors))
 
 
     async def update_bulk(self, data: list[Any]) -> None:

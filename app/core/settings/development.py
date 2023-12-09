@@ -9,4 +9,4 @@ class DevAppSettings(AppSettings):
     logging_level: int = logging.DEBUG
     
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
