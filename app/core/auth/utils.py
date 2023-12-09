@@ -23,22 +23,13 @@ class VerifyToken:
     """Verify token using PyJWT"""
     
     def __init__(self) -> None:
-        self.config = get_app_settings().auth0
-        
-        print(f"""
-              domain={self.config.domain}
-              issuer={self.config.issuer}
-              audience={self.config.api_audience}
-              algorithm={self.config.algorithm}
-              """)
-        
+        self.config = get_app_settings().auth0        
         jwks_uri = f'https://{self.config.domain}/.well-known/jwks.json'
         self.jwks_client = jwt.PyJWKClient(uri=jwks_uri, ssl_context=ssl.create_default_context(cafile=certifi.where()))
     
     def verify(self, 
                security_scope: SecurityScopes,
                token: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer())):
-        print(f"token:{token}")
         if token is None:
             raise UnauthenticatedException
 
