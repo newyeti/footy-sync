@@ -47,6 +47,12 @@ jobs:
           oci setup repair-file-permissions --file /home/runner/.oci/config
           oci setup repair-file-permissions --file /home/runner/.oci/key.pem
       
+      - name: 'OCI Setup'
+        run: |
+          exec -l $SHELL
+          oci setup repair-file-permissions --file /home/runner/.oci/config
+          oci setup repair-file-permissions --file /home/runner/.oci/key.pem
+
       - name: 'Install kubectl'
         run: |
           mkdir /tmp/.kube
