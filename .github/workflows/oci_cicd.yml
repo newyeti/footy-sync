@@ -3,7 +3,7 @@ name: CI/CD
 on:
   push:
     branches:
-      - main
+      - feature/fixture-services
 
 jobs:
   build:
@@ -73,11 +73,11 @@ jobs:
         run: |
           docker build --push --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKER_URL }}/${{ secrets.DOCKER_OBJECT_STORAGE_NAMESPACE }}/${{env.IMAGE_NAME}}:latest .
 
-      - name: Deploy to K8S
-        run: |
-          sed -i 's/<DOCKER_OBJECT_STORAGE_NAMESPACE>/${{ secrets.DOCKER_OBJECT_STORAGE_NAMESPACE }}/g' deployments/k8s-deployment.yaml
-          kubectl -n ${{vars.KUBE_NAMESPACE}} apply -f deployments/k8s-deployment.yaml
+    #   - name: Deploy to K8S
+    #     run: |
+    #       sed -i 's/<DOCKER_OBJECT_STORAGE_NAMESPACE>/${{ secrets.DOCKER_OBJECT_STORAGE_NAMESPACE }}/g' deployments/k8s-deployment.yaml
+    #       kubectl -n ${{vars.KUBE_NAMESPACE}} apply -f deployments/k8s-deployment.yaml
 
-      - name: Restart service
-        run: |
-          kubectl -n ${{vars.KUBE_NAMESPACE}} rollout restart deployment footy-sync
+    #   - name: Restart service
+    #     run: |
+    #       kubectl -n ${{vars.KUBE_NAMESPACE}} rollout restart deployment footy-sync
