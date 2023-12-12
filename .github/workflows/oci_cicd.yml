@@ -80,4 +80,4 @@ jobs:
 
       - name: Restart service
         run: |
-          kubectl -n ${{vars.KUBE_NAMESPACE}} rollout restart deployment footy-sync
+          kubectl -n ${{vars.KUBE_NAMESPACE}} rollout restart deployment footy-sync-service
