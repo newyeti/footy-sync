@@ -55,10 +55,9 @@ jobs:
           mv kubectl /usr/local/bin
           echo "${{ secrets.KUBECONFIG }}" > /tmp/.kube/config
           echo "KUBECONFIG=/tmp/.kube/config" >> $GITHUB_ENV
-          cat $KUBECONFIG
       
       - name: 'Currently running services'
-        run: kubectl get nodes
+        run: kubectl -n ${{vars.KUBE_NAMESPACE}} get nodes
       
       - name: Login to Docker registry
         uses: docker/login-action@v1
