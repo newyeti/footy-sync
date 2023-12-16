@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+spec:
+  selector:
+    lbtype: internal
+    app: webapp
+  type: ClusterIP
+  ports:
+  - name: webapp
+    protocol: TCP
+    port: 8000
+    targetPort: 8000

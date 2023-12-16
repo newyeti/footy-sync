@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: iad.ocir.io/id2dt013po6d/infra/nginx-proxy:v14.test
+          image: iad.ocir.io/id2dt013po6d/infra/nginx-proxy:v1.0.4
           ports:
             - containerPort: 80
               name: "80-port"
@@ -73,7 +73,7 @@ spec:
     spec:
       containers:
         - name: grafana
-          image: grafana/grafana:latest
+          image: iad.ocir.io/id2dt013po6d/infra/grafana:v1.0.3
           ports:
             - containerPort: 3000
               name: "3000-port"

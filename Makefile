@@ -28,3 +28,19 @@ compose-up:
 
 compose-down:
 	docker-compose down
+
+nginx:
+	docker build -t nginx-proxy infra/nginx/.
+	docker tag nginx-proxy iad.ocir.io/id2dt013po6d/infra/nginx-proxy:v1.0.4
+	docker push iad.ocir.io/id2dt013po6d/infra/nginx-proxy:v1.0.4
+
+grafana:
+	docker build -t grafana infra/grafana/.
+	docker tag nginx-proxy iad.ocir.io/id2dt013po6d/infra/grafana:v1.0.3
+	docker push iad.ocir.io/id2dt013po6d/infra/grafana:v1.0.3
+
+kube-deploy:
+	kubectl -n footy apply -f k8s/deployments.yaml
+
+kube-service:
+	kubectl -n footy apply -f k8s/services.yaml
