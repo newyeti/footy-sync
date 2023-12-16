@@ -1,25 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webapp
+  name: {{ .Values.webapp.name }}
   labels:
-    app: webapp
+    app: {{ .Values.webapp.name }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.webapp.replicas }}
   selector:
     matchLabels:
-      app: webapp
+      app: {{ .Values.webapp.selectorLabels }}
   template:
     metadata:
       labels:
-        lbtype: internal
-        app: webapp
+        lbtype: {{ .Values.webapp.lbtype }}
+        app: {{ .Values.webapp.name }}
     spec:
       containers:
-        - name: webapp
-          image: iad.ocir.io/id2dt013po6d/infra/webapp:v8.test
+        - name: {{ .Values.webapp.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           ports:
-            - containerPort: 8000
-              name: "8000-port"
+            - containerPort: {{ .Values.service.port }}
       imagePullSecrets:
-      - name: footy-registry-secret
+      - name: {{ .Values.imagePullSecrets }}

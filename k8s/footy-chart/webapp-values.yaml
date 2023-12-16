@@ -1,0 +1,14 @@
+webapp:
+  name: webapp
+  lbtype: lbtype
+  selectorLabels: webapp
+
+image: 
+  repository: iad.ocir.io/id2dt013po6d/infra/webapp
+  tag: v8.test 
+
+service: 
+  port: 8000
+  targetPort: 8000
+
+imagePullSecrets: footy-registry-secret

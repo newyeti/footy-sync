@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-svc
+  name: {{ .Values.webapp.name }}
 spec:
   selector:
-    lbtype: internal
-    app: webapp
+    lbtype: {{ .Values.webapp.lbtype }}
+    app: {{ .Values.webapp.selectorLabels }}
   type: ClusterIP
   ports:
-  - name: webapp
+  - name: {{ .Values.webapp.name }}
     protocol: TCP
-    port: 8000
-    targetPort: 8000
+    port: {{ .Values.service.port }}
+    targetPort: {{ .Values.service.targetPort }}
