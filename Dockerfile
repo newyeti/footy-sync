@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.10.13-slim-bullseye
+FROM --platform=linux/arm64 python:3.10.13-slim-bullseye as build
 
 # Set the working directory to /app
 WORKDIR /app

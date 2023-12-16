@@ -16,10 +16,10 @@ spec:
                 name: grafana
                 port:
                   number: 3000
-          - path: /bak
+          - path: /footy/
             pathType: Prefix
             backend:
               service:
-                name: webapp
+                name: footy
                 port:
                   number: 8000

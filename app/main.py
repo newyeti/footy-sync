@@ -78,7 +78,7 @@ async def lifespan(app: FastAPI):
 def get_application() -> FastAPI:
     settings = get_app_settings()
     settings.configure_logging()
-    application = FastAPI(lifespan=lifespan, **settings.fastapi_kwargs) 
+    application = FastAPI(lifespan=lifespan, root_path="/footy/", **settings.fastapi_kwargs) 
     application.add_middleware(
         CORSMiddleware,
         allow_origins=settings.allowed_hosts,

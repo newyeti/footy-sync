@@ -1,0 +1,23 @@
+webapp:
+  name: footy-sync
+  lbtype: internal
+  selectorLabels: footy-sync
+
+image: 
+  repository: iad.ocir.io/id2dt013po6d/newyeti/footy-sync
+  tag: v1.0.0
+
+service: 
+  port: 8000
+  targetPort: 8000
+
+imagePullSecrets: footy-registry-secret
+
+secret: footy-secrets
+
+google_cloud_project: newyeti
+
+app_env: prod
+
+observability:
+  tempo: http://tempo:4317

@@ -31,13 +31,18 @@ compose-down:
 
 nginx:
 	docker build -t nginx-proxy infra/nginx/.
-	docker tag nginx-proxy iad.ocir.io/id2dt013po6d/infra/nginx-proxy:v1.0.4
-	docker push iad.ocir.io/id2dt013po6d/infra/nginx-proxy:v1.0.4
+	docker tag nginx-proxy iad.ocir.io/id2dt013po6d/infra/nginx-proxy:$(version)
+	docker push iad.ocir.io/id2dt013po6d/infra/nginx-proxy:$(version)
 
 grafana:
 	docker build -t grafana infra/grafana/.
-	docker tag nginx-proxy iad.ocir.io/id2dt013po6d/infra/grafana:v1.0.3
-	docker push iad.ocir.io/id2dt013po6d/infra/grafana:v1.0.3
+	docker tag nginx-proxy iad.ocir.io/id2dt013po6d/infra/grafana:$(version)
+	docker push iad.ocir.io/id2dt013po6d/infra/grafana:$(version)
+
+footy-sync:
+	docker build -t footy-sync .
+	docker tag footy-sync iad.ocir.io/id2dt013po6d/newyeti/footy-sync:$(version)
+	docker push iad.ocir.io/id2dt013po6d/newyeti/footy-sync:$(version)
 
 kube-deploy:
 	kubectl -n footy apply -f k8s/deployments.yaml
