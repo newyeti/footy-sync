@@ -14,7 +14,7 @@ docker-run:
 	--env "APP_ENV=dev" \
 	--env "INFRA=${infra}" \
 	--env "RAPID_API=${rapid_api_keys}" \
-	--name newyeti-container newyeti/footy-sync-service
+	--name newyeti-container iad.ocir.io/id2dt013po6d/newyeti/footy-sync:v1.0.3
 
 docker-stop:
 	docker stop newyeti-container
@@ -44,8 +44,19 @@ footy-sync:
 	docker tag footy-sync iad.ocir.io/id2dt013po6d/newyeti/footy-sync:$(version)
 	docker push iad.ocir.io/id2dt013po6d/newyeti/footy-sync:$(version)
 
+footy-sync-amd:
+	docker buildx build --platform=linux/amd64 -t footy-sync .
+	docker tag footy-sync iad.ocir.io/id2dt013po6d/newyeti/footy-sync:$(version)-amd
+	docker push iad.ocir.io/id2dt013po6d/newyeti/footy-sync:$(version)-amd
+
 kube-deploy:
 	kubectl -n footy apply -f k8s/deployments.yaml
 
 kube-service:
 	kubectl -n footy apply -f k8s/services.yaml
+
+ingress:
+	kubectl -n footy apply -f k8s/footy-chart/service-ingress.yaml
+
+install-footy-sync:
+	helm upgrade --namespace footy --install footy-sync k8s/footy-chart -f k8s/footy-chart/footy-sync-values.yaml

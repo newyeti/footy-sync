@@ -4,6 +4,8 @@ metadata:
   name: footy-configmap
   namespace: footy
 data:
-  APP_ENV: "prod"
+  APP_ENV: "dev"
+  ROOT_CONTEXT: "/footy(/|$)(.*)"
   EXPOSE_PORT: "8000"
   OTLP_GRPC_ENDPOINT: http://tempo:4317
+

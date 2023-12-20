@@ -3,6 +3,8 @@ kind: Ingress
 metadata:
   name: service-ingress
   namespace: footy
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   ingressClassName: nginx
   rules:
@@ -16,10 +18,10 @@ spec:
                 name: grafana
                 port:
                   number: 3000
-          - path: /footy/
+          - path: /footy(/|$)(.*)
             pathType: Prefix
             backend:
               service:
-                name: footy
+                name: footy-sync
                 port:
                   number: 8000

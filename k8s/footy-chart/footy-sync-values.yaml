@@ -5,7 +5,7 @@ webapp:
 
 image: 
   repository: iad.ocir.io/id2dt013po6d/newyeti/footy-sync
-  tag: v1.0.0
+  tag: v1.2-amd
 
 service: 
   port: 8000
