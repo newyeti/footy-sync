@@ -58,5 +58,12 @@ kube-service:
 ingress:
 	kubectl -n footy apply -f k8s/footy-chart/service-ingress.yaml
 
-install-footy-sync:
+secret:
+	kubectl -n footy apply -f k8s/footy-chart/secrets/footy-secrets.yaml
+
+configmap:
+	kubectl -n footy apply -f k8s/footy-chart/configmaps/footy-configmaps.yaml
+
+footy-sync:
 	helm upgrade --namespace footy --install footy-sync k8s/footy-chart -f k8s/footy-chart/footy-sync-values.yaml
+
