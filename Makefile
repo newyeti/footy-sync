@@ -64,6 +64,18 @@ secret:
 configmap:
 	kubectl -n footy apply -f k8s/footy-chart/configmaps/footy-configmaps.yaml
 
-footy-sync:
-	helm upgrade --namespace footy --install footy-sync k8s/footy-chart -f k8s/footy-chart/footy-sync-values.yaml
+helm-grafana:
+	helm -n footy upgrade --install grafana grafana/grafana -f k8s/footy-chart/grafana-values.yaml
+
+helm-footy-sync:
+	helm upgrade --install footy-sync k8s/footy-chart --namespace footy -f k8s/footy-chart/footy-sync-values.yaml
+
+helm-loki-stack:
+	helm upgrade --install loki-stack grafana/loki-stack --namespace footy  -f k8s/footy-chart/loki-stack-values.yaml
+
+helm-tempo:
+	helm upgrade --install tempo grafana/tempo --namespace footy 
+
+helm-ingress-nginx:
+	helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx -f k8s/footy-chart/nginx-values.yaml --namespace footy
 

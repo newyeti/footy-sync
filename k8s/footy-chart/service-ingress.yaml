@@ -11,7 +11,7 @@ spec:
     - host: footy.newyeti.us.to
       http:
         paths:
-          - path: /
+          - path: /grafana(/|$)(.*)
             pathType: Prefix
             backend:
               service:
@@ -25,4 +25,17 @@ spec:
                 name: footy-sync
                 port:
                   number: 8000
-
+          - path: /tempo(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: tempo
+                port:
+                  number: 3100
+          - path: /loki-stack(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: loki-stack
+                port:
+                  number: 3100

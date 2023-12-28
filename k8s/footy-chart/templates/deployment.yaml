@@ -4,6 +4,7 @@ metadata:
   name: {{ .Values.webapp.name }}
   labels:
     app: {{ .Values.webapp.name }}
+    service: {{ .Values.webapp.name }}
 spec:
   replicas: {{ .Values.webapp.replicas }}
   selector:

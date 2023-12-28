@@ -3,3 +3,52 @@ persistence:
 
 service:
   port: 3000
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+
+    datasources:
+      - name: Tempo
+        type: tempo
+        access: proxy
+        orgId: 1
+        url: http://tempo:3100
+        basicAuth: false
+        isDefault: false
+        version: 1
+        editable: true
+        apiVersion: 1
+        uid: tempo
+
+      - name: Loki
+        type: loki
+        access: proxy
+        orgId: 1
+        url: http://loki-stack:3100
+        basicAuth: false
+        isDefault: true
+        version: 1
+        editable: true
+        apiVersion: 1
+        uid: loki-stack
+
+grafana.ini:
+  server:
+    domain: footy.newyeti.us.to
+    root_url: http://footy.newyeti.us.to/grafana
+    serve_from_subpath: true
+  paths:
+    data: /var/lib/grafana/data
+    logs: /var/log/grafana
+    plugins: /var/lib/grafana/plugins
+    provisioning: /etc/grafana/provisioning
+  analytics:
+    check_for_updates: true
+  log:
+    mode: console
+  grafana_net:
+    url: https://grafana.net
+
+adminUser: admin
+adminPassword: admin
