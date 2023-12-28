@@ -25,4 +25,3 @@ spec:
                 name: footy-sync
                 port:
                   number: 8000
-  

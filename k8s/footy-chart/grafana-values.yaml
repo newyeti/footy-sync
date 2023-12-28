@@ -9,18 +9,6 @@ datasources:
     apiVersion: 1
 
     datasources:
-      - name: Tempo
-        type: tempo
-        access: proxy
-        orgId: 1
-        url: http://tempo:3100
-        basicAuth: false
-        isDefault: false
-        version: 1
-        editable: true
-        apiVersion: 1
-        uid: tempo
-
       - name: Loki
         type: loki
         access: proxy
@@ -32,6 +20,33 @@ datasources:
         editable: true
         apiVersion: 1
         uid: loki-stack
+        jsonData:
+          timeout: "300"
+          derivedFields:
+            - datasourceUid: tempo
+              matcherRegex: "(?:trace_id)=(\\w+)"
+              url: "$${__value.raw}"  
+              name: TraceID
+
+      - name: Tempo
+        type: tempo
+        access: proxy
+        orgId: 1
+        url: http://tempo:3100
+        basicAuth: false
+        isDefault: false
+        version: 1
+        editable: true
+        apiVersion: 1
+        uid: tempo
+        jsonData:
+          tracesToLogsV2:
+            datasourceUid: 'loki-stack'
+            spanStartTimeShift: '1h'
+            spanEndTimeShift: '-1h'
+            tags: ['job', 'instance', 'pod', 'namespace', 'service']
+            filterByTraceID: false
+            filterBySpanID: false
 
 grafana.ini:
   server:
