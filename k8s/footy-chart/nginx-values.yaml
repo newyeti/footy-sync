@@ -3,4 +3,9 @@ controller:
     type: NodePort
     nodePorts:
       http: 31600
-
+  metrics: 
+    enabled: true
+    serviceMonitor:
+      additionalLabels:
+        release: prometheus
+      enabled: true

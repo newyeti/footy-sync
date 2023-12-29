@@ -25,3 +25,10 @@ spec:
                 name: footy-sync
                 port:
                   number: 8000
+          - path: /prometheus(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus-server
+                port:
+                  number: 80

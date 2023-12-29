@@ -7,8 +7,9 @@ loki:
 
 promtail:
   enabled: true
-
+  
 prometheus:
   enabled: false
+
 grafana: 
   enabled: false

@@ -79,3 +79,5 @@ helm-tempo:
 helm-ingress-nginx:
 	helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx -f k8s/footy-chart/nginx-values.yaml --namespace footy
 
+helm-prometheus:
+	helm upgrade --install prometheus prometheus-community/prometheus --set alertmanager.enabled=false --namespace footy -f k8s/footy-chart/prometheus-values.yaml

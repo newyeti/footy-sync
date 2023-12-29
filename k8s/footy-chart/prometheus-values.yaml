@@ -1,0 +1,20 @@
+server:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /$2
+    labels:
+      app: prometheus-server
+    hosts: 
+      - footy.newyeti.us.to
+    paths:
+      - /prometheus(/|$)(.*)
+    pathType: Prefix              
+
+extraScrapeConfigs: |
+  - job_name: footy_sync
+    metrics_path: /metrics
+    static_configs:
+      - targets:  
+        - footy-sync:8000
