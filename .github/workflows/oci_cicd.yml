@@ -6,7 +6,9 @@ on:
       - feature/fixture-services
 
 jobs:
-  build:
+  service:
+    name: 'Build & Deploy to Oracle Cloud'
+
     runs-on: ubuntu-latest
     permissions: 
       contents: write
@@ -96,4 +98,4 @@ jobs:
 
       - name: Helm Deploy to K8S
         run: |
-          helm upgrade --install footy-sync k8s/footy-chart --namespace footy -f k8s/footy-chart/footy-sync-values.yaml
+          helm upgrade --install footy-sync k8s/footy-chart --namespace footy -f k8s/footy-chart/footy-sync-values.yaml --set image.tag=$GIT_TAG

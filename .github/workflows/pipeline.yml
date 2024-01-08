@@ -1,11 +1,11 @@
 ---
-name: Build service and deploy to GCP
+name: Build service and deploy
 
 on:
   push:
-    branches: ['main', 'develop']
+    branches: ['develop']
   pull_request:
-    branches: ["develop", "main"]
+    branches: ["develop"]
 
 jobs:
   service:
