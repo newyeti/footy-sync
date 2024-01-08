@@ -1,5 +1,5 @@
 ---
-name: Build service and deploy
+name: Build service and push to registry
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   service:
-    name: 'Build & Deploy'
+    name: 'Build and Push to Registry'
     runs-on: 'ubuntu-latest'
 
     defaults:

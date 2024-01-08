@@ -3,7 +3,7 @@ name: CI/CD
 on:
   push:
     branches:
-      - feature/fixture-services
+      - main
 
 jobs:
   service:
@@ -93,9 +93,11 @@ jobs:
           bash ./scripts/git_update.sh -v $GIT_TAG_TYPE
 
       - name: Build
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           docker build --push --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKER_URL }}/${{ secrets.DOCKER_OBJECT_STORAGE_NAMESPACE }}/${{env.IMAGE_NAME}}:$GIT_TAG .
 
       - name: Helm Deploy to K8S
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           helm upgrade --install footy-sync k8s/footy-chart --namespace footy -f k8s/footy-chart/footy-sync-values.yaml --set image.tag=$GIT_TAG
