@@ -55,6 +55,9 @@ jobs:
           mv kubectl /usr/local/bin
           echo "${{ secrets.KUBECONFIG }}" > /tmp/.kube/config
           echo "KUBECONFIG=/tmp/.kube/config" >> $GITHUB_ENV
+          echo "OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True" >> $GITHUB_ENV
+          oci ce cluster create-kubeconfig --cluster-id ${{ secrets.OCI_CLUSTER_ID }} --file ~/.kube/config --region ${{ vars.us-ashburn-1 }} --token-version 2.0.0 --kube-endpoint PUBLIC_ENDPOINT
+
       
       - name: 'Currently running services'
         run: kubectl -n ${{vars.KUBE_NAMESPACE}} get nodes
