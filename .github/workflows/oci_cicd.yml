@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions: 
+      contents: write
 
     env:
       IMAGE_NAME: footy-sync-service
