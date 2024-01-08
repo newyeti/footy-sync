@@ -1,0 +1,36 @@
+docker login -u id2dt013po6d/sachindra.maharjan4@gmail.com https://us-ashburn-1.ocir.io
+docker login -u id2dt013po6d/sachindra.maharjan4@gmail.com https://us-ashburn-1.ocir.io
+
+oci ce cluster create-kubeconfig --cluster-id ocid1.cluster.oc1.iad.aaaaaaaachawm2hpf3gbxmfnp4fxjlcorg5fn6v2qlj4zftpec3lg4eba7qq --file ~/.kube/footy-k8s-config --region us-ashburn-1 --token-version 2.0.0 --kube-endpoint PUBLIC_ENDPOINT
+
+export KUBECONFIG=~/.kube/footy-k8s-config
+
+kubectl -n footy create secret docker-registry footy-registry-secret --docker-server=us-ashburn-1.ocir.io --docker-username='id2dt013po6d/sachindra.maharjan4@gmail.com' --docker-password='zAKht6B-W:rm[j_ERMi7'
+
+docker build -t footy-sync .
+docker buildx build --platform=linux/amd64 -t footy-sync .
+docker tag footy-sync iad.ocir.io/id2dt013po6d/newyeti/footy-sync:v1.2-amd
+docker push iad.ocir.io/id2dt013po6d/newyeti/footy-sync:v1.2-amd
+
+docker buildx build --platform=linux/amd64 -t footy-sync .
+docker tag footy-sync us-central1-docker.pkg.dev/newyeti/footy/footysync-service:v.1.0.0-amd64
+docker push us-central1-docker.pkg.dev/newyeti/footy/footysync-service:v.1.0.0-amd64
+
+helm ugrade --install footy k8s/footy-chart --namespace footy
+
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -subj "/CN=footy.newyeti.us.to" -addext "subjectAltName=DNS:footy.newyeti.us.to"
+
+openssl req -x509 \
+  -new -nodes  \
+  -days 365 \
+  -key ca.key \
+  -out ca.crt \
+  -subj "/CN=footy.newyeti.us.to" \
+  -addext "subjectAltName=DNS:footy.newyeti.us.to"
+
+  openssl x509 -text -noout -in ca.crt
+
+  kubectl create secret tls footy-newyeti-tls-secret \
+--key ca.key \
+--cert ca.crt \
+--namespace footy
