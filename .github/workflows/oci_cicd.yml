@@ -57,6 +57,11 @@ jobs:
           echo "KUBECONFIG=/tmp/.kube/config" >> $GITHUB_ENV
           echo "OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True" >> $GITHUB_ENV
       
+      - uses: azure/setup-helm@v3
+        with:
+          version: 'v3.13.3' # default is latest (stable)
+        id: install
+      
       - name: 'Currently running services'
         run: kubectl -n ${{vars.KUBE_NAMESPACE}} get nodes
       
@@ -72,13 +77,12 @@ jobs:
 
       - name: Build
         run: |
-          docker build --push --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKER_URL }}/${{ secrets.DOCKER_OBJECT_STORAGE_NAMESPACE }}/${{env.IMAGE_NAME}}:latest .
+          docker build --push --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKER_URL }}/${{ secrets.DOCKER_OBJECT_STORAGE_NAMESPACE }}/${{env.IMAGE_NAME}}:latest-amd .
 
-      - name: Deploy to K8S
+      - name: Helm Deploy to K8S
         run: |
-          sed -i 's/<DOCKER_OBJECT_STORAGE_NAMESPACE>/${{ secrets.DOCKER_OBJECT_STORAGE_NAMESPACE }}/g' deployments/k8s-deployment.yaml
-          kubectl -n ${{vars.KUBE_NAMESPACE}} apply -f deployments/k8s-deployment.yaml
-
-      - name: Restart service
-        run: |
-          kubectl -n ${{vars.KUBE_NAMESPACE}} rollout restart deployment footy-sync-service
+          helm upgrade --install footy-sync k8s/footy-chart --namespace footy -f k8s/footy-chart/footy-sync-values.yaml
+     
+      # - name: Restart service
+      #   run: |
+      #     kubectl -n ${{vars.KUBE_NAMESPACE}} rollout restart deployment footy-sync-service
