@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: footy.newyeti.us.to
+spec:
+  secretName: footy.newyeti.us.to-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: Issuer
+  commonName: footy.newyeti.us.to
+  dnsNames:
+  - footy.newyeti.us.to

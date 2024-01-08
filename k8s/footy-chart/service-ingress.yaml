@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: service-ingress
+  namespace: footy
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    # cert-manager.io/issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - footy.newyeti.us.to
+    secretName: footy-newyeti-tls-secret
+  rules:
+    - host: footy.newyeti.us.to
+      http:
+        paths:
+          - path: /grafana(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 3000
+          - path: /footy(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: footy-sync
+                port:
+                  number: 8000
+          - path: /prometheus(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus-server
+                port:
+                  number: 80

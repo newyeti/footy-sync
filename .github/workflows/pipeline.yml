@@ -1,15 +1,15 @@
 ---
-name: Build service and deploy to GCP
+name: Build service and push to registry
 
 on:
   push:
-    branches: ['main', 'develop']
+    branches: ['develop']
   pull_request:
-    branches: ["develop", "main"]
+    branches: ["develop"]
 
 jobs:
   service:
-    name: 'Build & Deploy'
+    name: 'Build and Push to Registry'
     runs-on: 'ubuntu-latest'
 
     defaults:

@@ -1,0 +1,11 @@
+controller:
+  service:
+    type: NodePort
+    nodePorts:
+      https: 31600
+  metrics: 
+    enabled: true
+    serviceMonitor:
+      additionalLabels:
+        release: prometheus
+      enabled: true
