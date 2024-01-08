@@ -1,4 +1,7 @@
 server:
+  persistentVolume:
+    enabled: true
+    existingClaim: grafana
   ingress:
     enabled: true
     ingressClassName: nginx

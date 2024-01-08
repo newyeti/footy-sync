@@ -2,7 +2,7 @@ controller:
   service:
     type: NodePort
     nodePorts:
-      http: 31600
+      https: 31600
   metrics: 
     enabled: true
     serviceMonitor:

@@ -81,3 +81,11 @@ helm-ingress-nginx:
 
 helm-prometheus:
 	helm upgrade --install prometheus prometheus-community/prometheus --set alertmanager.enabled=false --namespace footy -f k8s/footy-chart/prometheus-values.yaml
+
+create-secret:
+	kubectl create secret tls footy-newyeti-tls-secret \
+--key ./credentials/key.pem \
+--cert ./credentials/cert.pem \
+--namespace footy
+
+

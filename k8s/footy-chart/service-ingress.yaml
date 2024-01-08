@@ -5,8 +5,13 @@ metadata:
   namespace: footy
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
+    # cert-manager.io/issuer: letsencrypt-prod
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - footy.newyeti.us.to
+    secretName: footy-newyeti-tls-secret
   rules:
     - host: footy.newyeti.us.to
       http:
