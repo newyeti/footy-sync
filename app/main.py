@@ -30,8 +30,9 @@ from app.api.errors.validation_error import http422_error_handler
 from app.api.utils import setting_otlp
 
 APP_NAME = os.environ.get("APP_NAME", "footy-sync")
-EXPOSE_PORT = os.environ.get("EXPOSE_PORT", 8000)
+EXPOSE_PORT = int(os.environ.get("EXPOSE_PORT", 8000))
 OTLP_GRPC_ENDPOINT = os.environ.get("OTLP_GRPC_ENDPOINT", "http://tempo:4317")
+ROOT_CONTEXT = os.environ.get("ROOT_CONTEXT", "")
 
 container_modules = [
         __name__, 
@@ -59,8 +60,8 @@ async def startup(mongo_db: MongoClient = Depends(Provide[Container.mongo_db]),
                       Provide[Container.bigquery])
                   ):
     await test_mongodb_connection(mongo_db)
-    await test_cache_service(cache_service)
     await test_bigquery_connection(bigquery_client)
+    await test_cache_service(cache_service)
 
 
 @inject
@@ -78,7 +79,7 @@ async def lifespan(app: FastAPI):
 def get_application() -> FastAPI:
     settings = get_app_settings()
     settings.configure_logging()
-    application = FastAPI(lifespan=lifespan, **settings.fastapi_kwargs) 
+    application = FastAPI(lifespan=lifespan, root_path=ROOT_CONTEXT, **settings.fastapi_kwargs) 
     application.add_middleware(
         CORSMiddleware,
         allow_origins=settings.allowed_hosts,
@@ -114,4 +115,4 @@ if __name__ == "__main__":
     # update uvicorn access logger format
     log_config = uvicorn.config.LOGGING_CONFIG
     log_config["formatters"]["access"]["fmt"] = "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] [trace_id=%(otelTraceID)s span_id=%(otelSpanID)s resource.service.name=%(otelServiceName)s] - %(message)s"
-    uvicorn.run(app, host="0.0.0.0", port=EXPOSE_PORT, log_config=log_config)
+    uvicorn.run(app, host="0.0.0.0", port=EXPOSE_PORT, root_path=ROOT_CONTEXT ,log_config=log_config)

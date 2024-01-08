@@ -29,17 +29,9 @@ class ResponseData(BaseModel):
 class Parameters(BaseModel):
     league: int
     season: int
-    
-class Paging(BaseModel):
-    current: int
-    total: int
 
-class TeamInRapidApiResponse(BaseModel):
-    get: str
+class TeamInRapidApiResponse(RapidApiResponse):
     parameters: Parameters
-    errors: Optional[Any]
-    results: int
-    paging: Paging
     response: list[ResponseData]
     
 

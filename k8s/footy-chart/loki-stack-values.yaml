@@ -1,0 +1,15 @@
+loki:
+  enabled: true
+  persistence:
+    enabled: true
+    storageClassName: oci-bv
+    size: 512M
+
+promtail:
+  enabled: true
+  
+prometheus:
+  enabled: false
+
+grafana: 
+  enabled: false

@@ -1,0 +1,103 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  service:
+    name: 'Build & Deploy to Oracle Cloud'
+
+    runs-on: ubuntu-latest
+    permissions: 
+      contents: write
+
+    env:
+      IMAGE_NAME: footy-sync-service
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+            python-version: '3.10'
+            cache: 'pip'
+    
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      
+      - name: 'Install OCI CLI'
+        run: |
+          mkdir ~/.oci
+          echo "${{ secrets.OCI_CONFIG }}" > ~/.oci/config
+          echo "${{ secrets.OCI_KEY_FILE }}" > ~/.oci/key.pem
+          curl -L -O https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh
+          chmod +x install.sh
+          ./install.sh --accept-all-defaults
+          echo "/home/runner/bin" >> $GITHUB_PATH
+          exec -l $SHELL
+          oci setup repair-file-permissions --file /home/runner/.oci/config
+          oci setup repair-file-permissions --file /home/runner/.oci/key.pem
+
+      - name: 'Install kubectl'
+        run: |
+          mkdir /tmp/.kube
+          curl -L -O "https://dl.k8s.io/release/v1.22.4/bin/linux/amd64/kubectl" -o kubectl
+          chmod +x kubectl
+          mv kubectl /usr/local/bin
+          echo "${{ secrets.KUBECONFIG }}" > /tmp/.kube/config
+          echo "KUBECONFIG=/tmp/.kube/config" >> $GITHUB_ENV
+          echo "OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True" >> $GITHUB_ENV
+      
+      - uses: azure/setup-helm@v3
+        with:
+          version: 'v3.13.3' # default is latest (stable)
+        id: install
+      
+      - name: 'Currently running services'
+        run: kubectl -n ${{vars.KUBE_NAMESPACE}} get nodes
+      
+      - name: Login to Docker registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ secrets.DOCKER_URL }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }}
+
+      - name: 'Get Git Tag from commit message'
+        id: determine-git-tag
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        
+        run: |-
+          bash ./scripts/git_version.sh
+        
+      - name: Automatic Tagging of Releases
+        id: increment-git-tag
+        run: |
+          bash ./scripts/git_update.sh -v $GIT_TAG_TYPE
+
+      - name: Build
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          docker build --push --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKER_URL }}/${{ secrets.DOCKER_OBJECT_STORAGE_NAMESPACE }}/${{env.IMAGE_NAME}}:$GIT_TAG .
+
+      - name: Helm Deploy to K8S
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          helm upgrade --install footy-sync k8s/footy-chart --namespace footy -f k8s/footy-chart/footy-sync-values.yaml --set image.tag=$GIT_TAG

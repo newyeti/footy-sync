@@ -14,7 +14,7 @@ docker-run:
 	--env "APP_ENV=dev" \
 	--env "INFRA=${infra}" \
 	--env "RAPID_API=${rapid_api_keys}" \
-	--name newyeti-container newyeti/footy-sync-service
+	--name newyeti-container iad.ocir.io/id2dt013po6d/newyeti/footy-sync:v1.0.3
 
 docker-stop:
 	docker stop newyeti-container
@@ -28,3 +28,64 @@ compose-up:
 
 compose-down:
 	docker-compose down
+
+nginx:
+	docker build -t nginx-proxy infra/nginx/.
+	docker tag nginx-proxy iad.ocir.io/id2dt013po6d/infra/nginx-proxy:$(version)
+	docker push iad.ocir.io/id2dt013po6d/infra/nginx-proxy:$(version)
+
+grafana:
+	docker build -t grafana infra/grafana/.
+	docker tag nginx-proxy iad.ocir.io/id2dt013po6d/infra/grafana:$(version)
+	docker push iad.ocir.io/id2dt013po6d/infra/grafana:$(version)
+
+footy-sync:
+	docker build -t footy-sync .
+	docker tag footy-sync iad.ocir.io/id2dt013po6d/newyeti/footy-sync:$(version)
+	docker push iad.ocir.io/id2dt013po6d/newyeti/footy-sync:$(version)
+
+footy-sync-amd:
+	docker buildx build --platform=linux/amd64 -t footy-sync .
+	docker tag footy-sync iad.ocir.io/id2dt013po6d/newyeti/footy-sync:$(version)-amd
+	docker push iad.ocir.io/id2dt013po6d/newyeti/footy-sync:$(version)-amd
+
+kube-deploy:
+	kubectl -n footy apply -f k8s/deployments.yaml
+
+kube-service:
+	kubectl -n footy apply -f k8s/services.yaml
+
+ingress:
+	kubectl -n footy apply -f k8s/footy-chart/service-ingress.yaml
+
+secret:
+	kubectl -n footy apply -f k8s/footy-chart/secrets/footy-secrets.yaml
+
+configmap:
+	kubectl -n footy apply -f k8s/footy-chart/configmaps/footy-configmaps.yaml
+
+helm-grafana:
+	helm -n footy upgrade --install grafana grafana/grafana -f k8s/footy-chart/grafana-values.yaml
+
+helm-footy-sync:
+	helm upgrade --install footy-sync k8s/footy-chart --namespace footy -f k8s/footy-chart/footy-sync-values.yaml
+
+helm-loki-stack:
+	helm upgrade --install loki-stack grafana/loki-stack --namespace footy  -f k8s/footy-chart/loki-stack-values.yaml
+
+helm-tempo:
+	helm upgrade --install tempo grafana/tempo --namespace footy 
+
+helm-ingress-nginx:
+	helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx -f k8s/footy-chart/nginx-values.yaml --namespace footy
+
+helm-prometheus:
+	helm upgrade --install prometheus prometheus-community/prometheus --set alertmanager.enabled=false --namespace footy -f k8s/footy-chart/prometheus-values.yaml
+
+create-secret:
+	kubectl create secret tls footy-newyeti-tls-secret \
+--key ./credentials/key.pem \
+--cert ./credentials/cert.pem \
+--namespace footy
+
+

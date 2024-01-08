@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        lbtype: external
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: iad.ocir.io/id2dt013po6d/infra/nginx-proxy:v1.0.4
+          ports:
+            - containerPort: 80
+              name: "80-port"
+      imagePullSecrets:
+      - name: footy-registry-secret
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  labels:
+    app: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        lbtype: internal
+        app: webapp
+    spec:
+      containers:
+        - name: webapp
+          image: iad.ocir.io/id2dt013po6d/infra/webapp:v8.test
+          ports:
+            - containerPort: 8000
+              name: "8000-port"
+      imagePullSecrets:
+      - name: footy-registry-secret
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        lbtype: internal
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: iad.ocir.io/id2dt013po6d/infra/grafana:v1.0.3
+          ports:
+            - containerPort: 3000
+              name: "3000-port"
+      imagePullSecrets:
+      - name: footy-registry-secret
+

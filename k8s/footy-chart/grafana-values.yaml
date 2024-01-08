@@ -1,0 +1,69 @@
+persistence:
+  enabled: true
+
+service:
+  port: 3000
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+
+    datasources:
+      - name: Loki
+        type: loki
+        access: proxy
+        orgId: 1
+        url: http://loki-stack:3100
+        basicAuth: false
+        isDefault: true
+        version: 1
+        editable: true
+        apiVersion: 1
+        uid: loki-stack
+        jsonData:
+          timeout: "300"
+          derivedFields:
+            - datasourceUid: tempo
+              matcherRegex: "(?:trace_id)=(\\w+)"
+              url: "$${__value.raw}"  
+              name: TraceID
+
+      - name: Tempo
+        type: tempo
+        access: proxy
+        orgId: 1
+        url: http://tempo:3100
+        basicAuth: false
+        isDefault: false
+        version: 1
+        editable: true
+        apiVersion: 1
+        uid: tempo
+        jsonData:
+          tracesToLogsV2:
+            datasourceUid: 'loki-stack'
+            spanStartTimeShift: '1h'
+            spanEndTimeShift: '-1h'
+            tags: ['job', 'instance', 'pod', 'namespace', 'service']
+            filterByTraceID: false
+            filterBySpanID: false
+
+grafana.ini:
+  server:
+    domain: footy.newyeti.us.to
+    root_url: http://footy.newyeti.us.to/grafana
+    serve_from_subpath: true
+  paths:
+    data: /var/lib/grafana/data
+    logs: /var/log/grafana
+    plugins: /var/lib/grafana/plugins
+    provisioning: /etc/grafana/provisioning
+  analytics:
+    check_for_updates: true
+  log:
+    mode: console
+  grafana_net:
+    url: https://grafana.net
+
+adminUser: admin
+adminPassword: admin

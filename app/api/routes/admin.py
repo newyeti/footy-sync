@@ -10,10 +10,11 @@ router = APIRouter()
 token_verifier = VerifyToken()
 
 @router.get("/", status_code=status.HTTP_200_OK)
-def health(auth_result: str = Security(token_verifier.verify)) -> Any:
+def health() -> Any:
     return {"status": "Running"}
 
 @router.get("/metrics")
-def api_metrics(auth_result: str = Security(token_verifier.verify)) -> Any:
+def api_metrics() -> Any:
+    # auth_result: str = Security(token_verifier.verify)
     return Response(generate_latest(REGISTRY), headers={"Content-Type": CONTENT_TYPE_LATEST})
 

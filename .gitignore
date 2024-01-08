@@ -6,3 +6,4 @@ credentials/**
 .env
 prod.env
 grafana_data/**
+**/secrets/**

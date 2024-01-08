@@ -12,7 +12,8 @@ class RedisClient:
                         decode_responses=True,
                         ssl=True,
                         ssl_cert_reqs="none",
-                        max_connections=settings.max_connections
+                        max_connections=settings.max_connections,
+                        socket_timeout=300,
+                        socket_connect_timeout=300
                         )  
         yield session
-        session.close()

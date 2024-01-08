@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: footy.newyeti.us.to-staging
+spec:
+  secretName: footy.newyeti.us.to-staging-tls
+  issuerRef:
+    name: letsencrypt-staging
+    kind: Issuer
+  commonName: footy.newyeti.us.to
+  dnsNames:
+  - footy.newyeti.us.to

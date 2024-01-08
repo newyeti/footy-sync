@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.webapp.name }}
+  labels:
+    app: {{ .Values.webapp.name }}
+    service: {{ .Values.webapp.name }}
+spec:
+  replicas: {{ .Values.webapp.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.webapp.selectorLabels }}
+  template:
+    metadata:
+      labels:
+        lbtype: {{ .Values.webapp.lbtype }}
+        app: {{ .Values.webapp.name }}
+    spec:
+      containers:
+      - name: {{ .Values.webapp.name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        ports:
+          - containerPort: {{ .Values.service.port }}
+        imagePullSecrets:
+          - name: {{ .Values.imagePullSecrets }}
+        envFrom:          
+        - configMapRef:
+            name: footy-configmap
+        - secretRef:
+            name: footy-secret
