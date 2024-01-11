@@ -4,6 +4,7 @@ from app.api.dependencies.cache import CacheService
 from app.db.clients import redis, mongo, bigquery
 from app.api.dependencies.rapid_api import RapidApiService
 from app.services.team_service import TeamService
+from app.services.fixture_service import FixtureService
 from app.db.repositories.mongo.team_repository import TeamRepository as MongoTeamRepository
 from app.db.repositories.bigquery.team_repository import TeamRepository as BigQueryTeamRepository
 
@@ -51,7 +52,11 @@ class Container(containers.DeclarativeContainer):
         cache_service=cache_service,
         mongo_team_repository=mongo_team_repository,
         bigquery_team_repository=bigquery_team_repository
-
+    )
+    
+    fixture_service = providers.Factory(
+        FixtureService,
+        rapid_api_service=rapid_api_service
     )
     
     

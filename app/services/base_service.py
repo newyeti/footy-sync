@@ -6,11 +6,13 @@ from app.api.errors.service_error import ServiceException, RapidApiException
 from app.api.errors.app_error import AppException
 
 class BaseService(ABC):    
-    async def sync_template(self, season: int, league_id: int) -> Any:
+    async def execute(self, season: int, league_id: int) -> Any:
         try:
             schema_obj = await self.call_api(season=season, league_id=league_id)
-            domain_obj = self.convert_to_domain(schema=schema_obj)
-            await self.save_in_db(domain_obj)
+            if schema_obj:
+                domain_obj = self.convert_to_domain(schema=schema_obj)
+                if domain_obj:
+                    await self.save_in_db(domain_obj)
         except RapidApiException as e:
             logger.error(e)
             raise ServiceException(name=e.name, api_url=e.api_url, message=e.message)
@@ -39,3 +41,6 @@ class ApiService(ABC):
                              season: int, 
                              league_id: int) -> Any:
         ...
+
+
+        

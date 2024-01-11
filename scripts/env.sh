@@ -9,14 +9,16 @@ fi
 
 if [[ "${app_env}" == "prod" ]]; then
     secret_name= "footy_cred"
+    infrastructure_cred=`gcloud secrets versions access latest --secret=$secret_name`
+    rapid_api_keys=`gcloud secrets versions access latest --secret=rapid-api-keys`
+else 
+    infrastructure_cred="$(cat ./credentials/infra.json | base64)"
+    rapid_api_keys="$(cat ./credentials/rapid_api_keys.json | base64)"
 fi
 
 echo "Setting '${app_env}' envrionment variables"
 
 export APP_ENV=${app_env}
-
-infrastructure_cred=`gcloud secrets versions access latest --secret=footy_cred_dev`
-rapid_api_keys=`gcloud secrets versions access latest --secret=rapid-api-keys`
 
 export INFRA=$(echo $infrastructure_cred | base64 --decode)
 export RAPID_API=$(echo $rapid_api_keys | base64 --decode)

@@ -37,6 +37,7 @@ ROOT_CONTEXT = os.environ.get("ROOT_CONTEXT", "")
 container_modules = [
         __name__, 
         "app.api.routes.teams",
+        "app.api.routes.fixtures",
         "app.core.events",
     ]
 
