@@ -8,17 +8,18 @@ from app.models.schema.fixture import FixtureResponse
 from app.models.domain.fixture import Fixture, Team, Goal, Score
 from app.api.dependencies.rapid_api import RapidApiService
 from app.db.repositories.mongo.fixture_repository import FixtureRepository as MongoFixtureRepository
+from app.db.clients.kafka import KafkaClient
 
 class FixtureService(BaseService):
     def __init__(self,
                  rapid_api_service: RapidApiService,
-                 mongo_fixture_repository: MongoFixtureRepository) -> None:
+                 mongo_fixture_repository: MongoFixtureRepository,
+                 kafka_client: KafkaClient) -> None:
         self.tracer = trace.get_tracer(__name__)
         self._rapid_api_service = rapid_api_service
         self.mongo_fixture_repository = mongo_fixture_repository
+        self.kafka_client = kafka_client
         
-        
-    
     async def call_api(self, season: int, league_id: int) -> Any:
         logger.info(f"Fixture:fetch_from_api - season={season}, league_id={league_id}")
         api_endpoint = self._rapid_api_service.settings.fixtures_endpoint
@@ -91,10 +92,18 @@ class FixtureService(BaseService):
         
     async def save_in_db(self, fixtures: list[Fixture]) -> None:
         logger.debug("Saving Fixture domain models in database")
-        await self.save_in_mongo(fixtures=fixtures)
+        await self.__save_in_mongo(fixtures=fixtures)
+        await self.__send_to_kafak(fixture=fixtures[0])
     
-    async def save_in_mongo(self, fixtures: list[Fixture]) -> None:
+    async def __save_in_mongo(self, fixtures: list[Fixture]) -> None:
         logger.debug("Saving Fixture domain models in mongo database")
         await self.mongo_fixture_repository.update_bulk(fixtures=fixtures)
     
+    async def __send_to_kafak(self, fixture: Fixture):
+        json_data = fixture.model_dump_json()
+        logger.info(f"sending json_data to kafka. Json Data: {json_data}")
+        await self.kafka_client.producer.send_and_wait(topic="newyeti.source.fixtures.v1", value=bytes(json_data, 'utf-8'))
+        
+        
+        
     

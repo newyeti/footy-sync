@@ -3,7 +3,7 @@ from typing import Any, Union
 from datetime import datetime
 from pymongo import UpdateOne
 from motor.core import AgnosticCollection
-from app.db.clients.mongo import MongoClient
+
 
 class BaseRepository(ABC):
     

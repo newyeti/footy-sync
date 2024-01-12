@@ -78,18 +78,18 @@ class TeamService(BaseService):
     async def save_in_db(self, teams: list[Team]) -> None:
         logger.debug("Saving team domain models in database")
         with self.tracer.start_as_current_span("mongo.team.save"):
-            await self._save_in_mongo(teams=teams)
+            await self.__save_in_mongo(teams=teams)
             
         with self.tracer.start_as_current_span("bigquery.team.save"):
-            await self._save_in_bigquery(teams=teams)
+            await self.__save_in_bigquery(teams=teams)
         logger.debug("Saving team domain models in database")
 
-    async def _save_in_mongo(self, teams: list[Team]) -> None:
+    async def __save_in_mongo(self, teams: list[Team]) -> None:
         logger.debug("Saving team domain models in Mongo database")
         await self.mongo_team_repository.update_bulk(teams)
         logger.debug("Team domain models saved in Mongo database")
 
-    async def _save_in_bigquery(self, teams: list[Team]) -> None:
+    async def __save_in_bigquery(self, teams: list[Team]) -> None:
         new_teams = []
         for team in teams:
             with self.tracer.start_as_current_span("bigquery.team.find.one"):
