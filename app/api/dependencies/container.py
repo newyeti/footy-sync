@@ -5,7 +5,10 @@ from app.db.clients import redis, mongo, bigquery
 from app.api.dependencies.rapid_api import RapidApiService
 from app.services.team_service import TeamService
 from app.services.fixture_service import FixtureService
-from app.db.repositories.mongo.team_repository import TeamRepository as MongoTeamRepository
+from app.db.repositories.mongo import (
+    team_repository as mongo_team_repository,
+    fixture_repository as mongo_fixture_repository)
+
 from app.db.repositories.bigquery.team_repository import TeamRepository as BigQueryTeamRepository
 
 
@@ -37,7 +40,12 @@ class Container(containers.DeclarativeContainer):
     )
     
     mongo_team_repository = providers.Factory(
-        MongoTeamRepository,
+        mongo_team_repository.TeamRepository,
+        client=mongo_db
+    )
+    
+    mongo_fixture_repository = providers.Factory(
+        mongo_fixture_repository.FixtureRepository,
         client=mongo_db
     )
 
@@ -56,8 +64,8 @@ class Container(containers.DeclarativeContainer):
     
     fixture_service = providers.Factory(
         FixtureService,
-        rapid_api_service=rapid_api_service
+        rapid_api_service=rapid_api_service,
+        mongo_fixture_repository=mongo_fixture_repository
     )
-    
     
     

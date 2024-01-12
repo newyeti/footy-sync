@@ -7,12 +7,16 @@ from app.services.base_service import BaseService
 from app.models.schema.fixture import FixtureResponse
 from app.models.domain.fixture import Fixture, Team, Goal, Score
 from app.api.dependencies.rapid_api import RapidApiService
+from app.db.repositories.mongo.fixture_repository import FixtureRepository as MongoFixtureRepository
 
 class FixtureService(BaseService):
     def __init__(self,
-                 rapid_api_service: RapidApiService) -> None:
+                 rapid_api_service: RapidApiService,
+                 mongo_fixture_repository: MongoFixtureRepository) -> None:
         self.tracer = trace.get_tracer(__name__)
         self._rapid_api_service = rapid_api_service
+        self.mongo_fixture_repository = mongo_fixture_repository
+        
         
     
     async def call_api(self, season: int, league_id: int) -> Any:
@@ -51,12 +55,15 @@ class FixtureService(BaseService):
                 "away_team": f.goals.away,
             }
             
-            score = {
-                "half_time": f"{f.score.halftime.home}-{f.score.halftime.away}",
-                "full_time": f"{f.score.fulltime.home}-{f.score.fulltime.away}",
-                "extra_time": f"{f.score.halftime.home}-{f.score.halftime.away}",
-                "penalty": f"{f.score.fulltime.home}-{f.score.fulltime.away}",
-            }
+            score = {}
+            if f.score.halftime.home is not None or f.score.halftime.away is not None:
+                score["half_time"] = f"{f.score.halftime.home}-{f.score.halftime.away}"
+            if f.score.fulltime.home is not None or f.score.fulltime.away is not None:
+                score["full_time"] = f"{f.score.fulltime.home}-{f.score.fulltime.away}"
+            if f.score.extratime.home is not None or f.score.extratime.away is not None:
+                score["extra_time"] = f"{f.score.extratime.home}-{f.score.extratime.away}"
+            if f.score.penalty.home is not None or f.score.penalty.away is not None:
+                score["penalty"] = f"{f.score.penalty.home}-{f.score.penalty.away}"
             
             fixture = mapper.to(Fixture).map(schema, fields_mapping={
                 "season": schema.parameters.season,
@@ -82,7 +89,12 @@ class FixtureService(BaseService):
         return fixtures
         
         
-    async def save_in_db(self, fixture: list[Fixture]) -> None:
+    async def save_in_db(self, fixtures: list[Fixture]) -> None:
         logger.debug("Saving Fixture domain models in database")
-        
+        await self.save_in_mongo(fixtures=fixtures)
+    
+    async def save_in_mongo(self, fixtures: list[Fixture]) -> None:
+        logger.debug("Saving Fixture domain models in mongo database")
+        await self.mongo_fixture_repository.update_bulk(fixtures=fixtures)
+    
     
