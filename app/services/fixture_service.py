@@ -8,25 +8,25 @@ from app.models.schema.fixture import FixtureResponse
 from app.models.domain.fixture import Fixture, Team, Goal, Score
 from app.api.dependencies.rapid_api import RapidApiService
 from app.db.repositories.mongo.fixture_repository import FixtureRepository as MongoFixtureRepository
-from app.db.clients.kafka import KafkaClient
 
 class FixtureService(BaseService):
     def __init__(self,
                  rapid_api_service: RapidApiService,
-                 mongo_fixture_repository: MongoFixtureRepository,
-                 kafka_client: KafkaClient) -> None:
+                 mongo_fixture_repository: MongoFixtureRepository) -> None:
         self.tracer = trace.get_tracer(__name__)
         self._rapid_api_service = rapid_api_service
         self.mongo_fixture_repository = mongo_fixture_repository
-        self.kafka_client = kafka_client
         
-    async def call_api(self, season: int, league_id: int) -> Any:
+    async def call_api(self, season: int, league_id: int, fixture_id: int = None) -> Any:
         logger.info(f"Fixture:fetch_from_api - season={season}, league_id={league_id}")
         api_endpoint = self._rapid_api_service.settings.fixtures_endpoint
+        params = {
+            "season": season,
+            "league": league_id
+        }
         with self.tracer.start_as_current_span("fixtures.fetch.from.api"):
             api_response = await self._rapid_api_service.fetch_from_api(endpoint=api_endpoint, 
-                                                season=season, 
-                                                league_id=league_id)
+                                                params=params)
         
         fixtures_obj = FixtureResponse.model_validate(api_response.response_data)
     

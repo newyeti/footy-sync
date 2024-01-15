@@ -5,12 +5,12 @@ from app.db.clients import redis, mongo, bigquery, kafka
 from app.api.dependencies.rapid_api import RapidApiService
 from app.services.team_service import TeamService
 from app.services.fixture_service import FixtureService
+from app.services.fixture_lineup_service import FixtureLineupService
 from app.db.repositories.mongo import (
-    team_repository as mongo_team_repository,
-    fixture_repository as mongo_fixture_repository)
-
-from app.db.repositories.bigquery.team_repository import TeamRepository as BigQueryTeamRepository
-
+    team_repository,
+    fixture_repository,
+    fixture_lineups_repository
+    )
 
 class Container(containers.DeclarativeContainer):
     config = providers.Configuration()
@@ -43,34 +43,37 @@ class Container(containers.DeclarativeContainer):
         cache_service=cache_service
     )
     
-    mongo_team_repository = providers.Factory(
-        mongo_team_repository.TeamRepository,
+    team_repository = providers.Factory(
+        team_repository.TeamRepository,
         client=mongo_db
     )
     
-    mongo_fixture_repository = providers.Factory(
-        mongo_fixture_repository.FixtureRepository,
+    fixture_repository = providers.Factory(
+        fixture_repository.FixtureRepository,
         client=mongo_db
     )
-
-    bigquery_team_repository = providers.Factory(
-        BigQueryTeamRepository,
-        client=bigquery
+    
+    fixture_lineup_repository = providers.Factory(
+        fixture_lineups_repository.FixtureLineupRepository,
+        client=mongo_db
     )
 
     team_service = providers.Factory(
         TeamService,
         rapid_api_service=rapid_api_service,
-        cache_service=cache_service,
-        mongo_team_repository=mongo_team_repository,
-        bigquery_team_repository=bigquery_team_repository
-    )
+        team_repository=team_repository
+        )
     
     fixture_service = providers.Factory(
         FixtureService,
         rapid_api_service=rapid_api_service,
-        mongo_fixture_repository=mongo_fixture_repository,
-        kafka_client=kafka_client
+        mongo_fixture_repository=fixture_repository
     )
     
+    fixture_lineup_service = providers.Factory(
+        FixtureLineupService,
+        rapid_api_service=rapid_api_service,
+        fixture_lineup_repository=fixture_lineup_repository
+    )
+
     

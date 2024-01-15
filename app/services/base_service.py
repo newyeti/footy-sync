@@ -6,9 +6,9 @@ from app.api.errors.service_error import ServiceException, RapidApiException
 from app.api.errors.app_error import AppException
 
 class BaseService(ABC):    
-    async def execute(self, season: int, league_id: int) -> Any:
+    async def execute(self, season: int, league_id: int, fixture_id: int = None) -> Any:
         try:
-            schema_obj = await self.call_api(season=season, league_id=league_id)
+            schema_obj = await self.call_api(season=season, league_id=league_id, fixture_id=fixture_id)
             if schema_obj:
                 domain_obj = self.convert_to_domain(schema=schema_obj)
                 if domain_obj:
@@ -22,7 +22,7 @@ class BaseService(ABC):
         
         
     @abstractmethod
-    async def call_api(self, season: int, league_id: int) -> Any:
+    async def call_api(self, season: int = None, league_id: int = None, fixture_id: int = None) -> Any:
         ...
 
     @abstractmethod

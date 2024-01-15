@@ -2,17 +2,17 @@ from datetime import datetime
 from loguru import logger
 from pymongo import UpdateOne
 
-from app.models.domain.fixture import Fixture
+from app.models.domain.fixture_lineup import FixtureLineup
 from app.db.clients.mongo import MongoClient
 from app.db.repositories.base_repository import BaseRepository
 
 
-class FixtureRepository(BaseRepository):
+class FixtureLineupRepository(BaseRepository):
     def __init__(self, client: MongoClient) -> None:
         self.client = client
-        self.collection = self.client.db.get_collection("fixtures")
+        self.collection = self.client.db.get_collection("fixture_lineups")
     
-    async def findOne(self, filter: dict) -> Fixture:
+    async def findOne(self, filter: dict) -> FixtureLineup:
         """This methods find a document asynchronously
 
         Args:
@@ -30,25 +30,25 @@ class FixtureRepository(BaseRepository):
         fixture_doc = await self.collection.find_one(filter=filter, projection=projection)
         return fixture_doc
         
-    async def update(self, f: Fixture) -> None:
-        """This method updates fixture documents asynchronously
+    async def update(self, lineup: FixtureLineup) -> None:
+        """This method updates fixture lineups documents asynchronously
 
         Args:
             filter (dict): Filter
             data (dict): Data to update
         """
-        await self.update_bulk([f])
+        await self.update_bulk([lineup])
         
-    async def update_bulk(self, fixtures: list[Fixture]):
-        """This method updates fixture documents asynchronously
+    async def update_bulk(self, lineups: list[FixtureLineup]):
+        """This method updates fixture lineups documents asynchronously
 
         Args:
             filter (dict): Filter
-            teams (list[Team]): Data to update
+            teams (list[FixtureLineup]): Data to update
         """
 
         logger.debug(f"Updating document for {filter}")
         
         await self.updateDocument(collection=self.collection, 
-                            filter_strs=["season", "league", "fixture_id"],
-                            datalist=fixtures)
+                            filter_strs=["season", "league", "fixture_id", "team_id"],
+                            datalist=lineups)

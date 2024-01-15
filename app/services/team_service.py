@@ -7,8 +7,7 @@ from app.services.base_service import BaseService
 from app.api.dependencies.rapid_api import RapidApiService
 from app.models.schema.team import TeamInRapidApiResponse
 from app.models.domain.team import Team
-from app.db.repositories.mongo.team_repository import TeamRepository as MongoTeamRepository
-from app.db.repositories.bigquery.team_repository import TeamRepository as BigQueryTeamRepository
+from app.db.repositories.mongo.team_repository import TeamRepository
 from opentelemetry import trace
 
 import logging as logger
@@ -17,23 +16,22 @@ class TeamService(BaseService):
 
     def __init__(self, 
                  rapid_api_service: RapidApiService,
-                 cache_service: CacheService,
-                 mongo_team_repository: MongoTeamRepository,
-                 bigquery_team_repository: BigQueryTeamRepository) -> None:
+                 team_repository: TeamRepository) -> None:
         self.tracer = trace.get_tracer(__name__)
         self.rapid_api_service = rapid_api_service
-        self.cache_service = cache_service
-        self.mongo_team_repository = mongo_team_repository
-        self.bigquery_team_repository = bigquery_team_repository
+        self.team_repository = team_repository
 
 
-    async def call_api(self, season: int, league_id: int) -> Any:
+    async def call_api(self, season: int, league_id: int, fixture_id : int = None) -> Any:
         logger.info(f"TeamService:fetch_from_api - season={season}, league_id={league_id}")
         api_endpoint = self.rapid_api_service.settings.teams_endpoint
+        params = {
+            "season": season,
+            "league": league_id
+        }
         with self.tracer.start_as_current_span("team.fetch.from.api"):
             api_response = await self.rapid_api_service.fetch_from_api(endpoint=api_endpoint, 
-                                                season=season, 
-                                                league_id=league_id)
+                                                params=params)
         
         logger.debug(api_response.response_data)
         
@@ -82,5 +80,5 @@ class TeamService(BaseService):
 
     async def __save_in_mongo(self, teams: list[Team]) -> None:
         logger.debug("Saving team domain models in Mongo database")
-        await self.mongo_team_repository.update_bulk(teams)
+        await self.team_repository.update_bulk(teams)
         logger.debug("Team domain models saved in Mongo database")

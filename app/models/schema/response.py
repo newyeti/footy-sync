@@ -19,6 +19,7 @@ class HttpResponse:
 class ApiResponse(BaseModel):
     season: int
     league_id: int
+    fixture_id: Optional[int | None] = None
     service: str
     status: ApiResponseStatus
     message: Optional[str | None] = None
@@ -29,6 +30,7 @@ class ApiResponse(BaseModel):
                 {
                     "season": 2023,
                     "league_id": 39,
+                    "fixture_id": 12345,
                     "service": "teams",
                     "status": "success",
                     "message": "Data sychnorized successfully."
