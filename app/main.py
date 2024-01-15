@@ -27,10 +27,7 @@ from app.db.clients.kafka import KafkaClient
 from app.db.events import (
     test_mongodb_connection, 
     stop_mongodb, 
-    test_cache_service, 
-    test_bigquery_connection,
-    test_kafka_connection,
-    stop_kafka
+    test_cache_service
 )
 from app.db.clients.bigquery import BigQueryClient
 from app.api.routes.api import router as api_router
@@ -71,16 +68,16 @@ async def startup(mongo_db: MongoClient = Depends(Provide[Container.mongo_db]),
                   kafka_client: KafkaClient = Depends(Provide[Container.kafka_client])
                   ):
     await test_mongodb_connection(mongo_db)
-    await test_bigquery_connection(bigquery_client)
     await test_cache_service(cache_service)
-    await test_kafka_connection(kafka_client)
+    # await test_bigquery_connection(bigquery_client)
+    # await test_kafka_connection(kafka_client)
 
 
 @inject
 async def shutdown(mongo_db: MongoClient = Depends(Provide[Container.mongo_db]),
                    kafka_client: KafkaClient = Depends(Provide[Container.kafka_client])):
     await stop_mongodb(mongo_db)
-    await stop_kafka(kafka_client=kafka_client)
+    # await stop_kafka(kafka_client=kafka_client)
 
 
 @asynccontextmanager

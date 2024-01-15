@@ -89,20 +89,15 @@ class FixtureService(BaseService):
     
         return fixtures
         
-        
     async def save_in_db(self, fixtures: list[Fixture]) -> None:
         logger.debug("Saving Fixture domain models in database")
-        await self.__save_in_mongo(fixtures=fixtures)
-        await self.__send_to_kafak(fixture=fixtures[0])
+        with self.tracer.start_as_current_span("mongo.team.save"):
+            await self.__save_in_mongo(fixtures=fixtures)
     
     async def __save_in_mongo(self, fixtures: list[Fixture]) -> None:
         logger.debug("Saving Fixture domain models in mongo database")
         await self.mongo_fixture_repository.update_bulk(fixtures=fixtures)
     
-    async def __send_to_kafak(self, fixture: Fixture):
-        json_data = fixture.model_dump_json()
-        logger.info(f"sending json_data to kafka. Json Data: {json_data}")
-        await self.kafka_client.producer.send_and_wait(topic="newyeti.source.fixtures.v1", value=bytes(json_data, 'utf-8'))
         
         
         

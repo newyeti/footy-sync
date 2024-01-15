@@ -21,5 +21,7 @@ class KafkaClient:
             return True
         except Exception as e:
             return False
+        # finally:
+        #     await self.producer.stop()
     
     
