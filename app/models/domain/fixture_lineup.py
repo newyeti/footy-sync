@@ -14,6 +14,7 @@ class FixtureLineup(BaseModel):
     season: int = Field(default=0, title="Season")
     league_id : int
     fixture_id: int
+    event_date: str = Field(default=current_date_str())
     coach_id: int
     coach_name: str
     formation: str

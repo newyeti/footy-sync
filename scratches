@@ -40,3 +40,8 @@ openssl req -x509 \
 kubectl -n footy get pods | grep grafana
 kubectl exec -it {podname} -n footy -- bash
 grafana-cli admin reset-admin-password {pwd}
+
+
+# Update bigquery schema
+bq show --schema --format=prettyjson newyeti:test_football.fixture_lineups > fixture_lineups.json
+bq update newyeti:test_football.fixture_lineups fixture_lineups.json
