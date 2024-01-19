@@ -19,7 +19,7 @@ class FixtureLineupRepository(BaseRepository):
             filter (dict): Filter
 
         Returns:
-            Team: Fixture Document
+            FixtureLineup: FixtureLineup Document
         """
         logger.debug(f"finding document for {filter}")
 
@@ -28,14 +28,13 @@ class FixtureLineupRepository(BaseRepository):
         }
 
         fixture_doc = await self.collection.find_one(filter=filter, projection=projection)
-        return fixture_doc
+        return FixtureLineup.model_validate(fixture_doc)
         
     async def update(self, lineup: FixtureLineup) -> None:
         """This method updates fixture lineups documents asynchronously
 
         Args:
-            filter (dict): Filter
-            data (dict): Data to update
+            lineup (FixtureLineup): Data to update
         """
         await self.update_bulk([lineup])
         
@@ -43,11 +42,10 @@ class FixtureLineupRepository(BaseRepository):
         """This method updates fixture lineups documents asynchronously
 
         Args:
-            filter (dict): Filter
-            teams (list[FixtureLineup]): Data to update
+            lineups (list[FixtureLineup]): Data to update
         """
 
-        logger.debug(f"Updating document for {filter}")
+        logger.debug(f"Updating Fixture Lineup documents")
         
         await self.updateDocument(collection=self.collection, 
                             filter_strs=["season", "league", "fixture_id", "team_id"],

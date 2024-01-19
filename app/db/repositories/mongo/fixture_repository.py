@@ -28,7 +28,7 @@ class FixtureRepository(BaseRepository):
         }
 
         fixture_doc = await self.collection.find_one(filter=filter, projection=projection)
-        return fixture_doc
+        return Fixture.model_validate(fixture_doc)
         
     async def update(self, f: Fixture) -> None:
         """This method updates fixture documents asynchronously

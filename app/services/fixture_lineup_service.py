@@ -6,16 +6,20 @@ from automapper import mapper
 from app.services.base_service import BaseService
 from app.models.schema.fixture_lineup import FixtureLineUpResponse, Players, Player, Color
 from app.models.domain.fixture_lineup import FixtureLineup
+from app.models.domain.fixture import Fixture
 from app.api.dependencies.rapid_api import RapidApiService
 from app.db.repositories.mongo.fixture_lineups_repository import FixtureLineupRepository
+from app.db.repositories.mongo.fixture_repository import FixtureRepository
 
 class FixtureLineupService(BaseService):
     def __init__(self,
                  rapid_api_service: RapidApiService,
-                 fixture_lineup_repository: FixtureLineupRepository) -> None:
+                 fixture_lineup_repository: FixtureLineupRepository,
+                 fixture_repository: FixtureRepository) -> None:
         self.tracer = trace.get_tracer(__name__)
         self._rapid_api_service = rapid_api_service
         self.fixture_lineup_repository = fixture_lineup_repository
+        self.fixture_repository = fixture_repository
         
     async def call_api(self, season: int, league_id: int, fixture_id: int) -> Any:
         logger.info(f"Fixture_Lineup:fetch_from_api - season={season}, league_id={league_id} - fixture_id={fixture_id}")
@@ -69,8 +73,29 @@ class FixtureLineupService(BaseService):
             await self.__save_in_mongo(lineups=lineups)
     
     async def __save_in_mongo(self, lineups: list[FixtureLineup]) -> None:
-        logger.debug("Saving Fixture domain models in mongo database")
-        await self.fixture_lineup_repository.update_bulk(lineups=lineups)
+        if len(lineups) == 0:
+            logger.error("Fixture lineup is not available")
+            return
+        
+        fixture_lineup = lineups[0]
+        fixture_filter = {
+            "season": fixture_lineup.season,
+            "league_id": fixture_lineup.league_id,
+            "fixture_id": fixture_lineup.fixture_id,
+        }
+        
+        logger.info(f"Finding Fixture {fixture_filter} in mongo database")
+        fixture = await self.fixture_repository.findOne(filter=fixture_filter)
+        
+        if fixture is None:
+            logger.error(f"Fixture for {fixture_filter} is not available.")
+        else:
+            logger.info("Saving Fixture linue updomain models in mongo database")
+            for lineup in lineups:
+                lineup.event_date = fixture.event_date
+            
+            await self.fixture_lineup_repository.update_bulk(lineups=lineups)
+
 
     def __map_players(self, players: list[Players]) -> list[Player]:
         player_list : list[Player] = []

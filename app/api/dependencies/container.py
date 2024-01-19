@@ -73,7 +73,8 @@ class Container(containers.DeclarativeContainer):
     fixture_lineup_service = providers.Factory(
         FixtureLineupService,
         rapid_api_service=rapid_api_service,
-        fixture_lineup_repository=fixture_lineup_repository
+        fixture_lineup_repository=fixture_lineup_repository,
+        fixture_repository=fixture_repository
     )
 
     
