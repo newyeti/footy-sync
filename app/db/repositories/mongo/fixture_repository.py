@@ -1,11 +1,8 @@
-from datetime import datetime
 from loguru import logger
-from pymongo import UpdateOne
 
 from app.models.domain.fixture import Fixture
 from app.db.clients.mongo import MongoClient
 from app.db.repositories.base_repository import BaseRepository
-
 
 class FixtureRepository(BaseRepository):
     def __init__(self, client: MongoClient) -> None:

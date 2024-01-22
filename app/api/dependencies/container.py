@@ -6,10 +6,19 @@ from app.api.dependencies.rapid_api import RapidApiService
 from app.services.team_service import TeamService
 from app.services.fixture_service import FixtureService
 from app.services.fixture_lineup_service import FixtureLineupService
+from app.services.fixture_events_service import FixtureEventsService
+from app.services.fixture_player_stats_service import FixturePlayerStatsService
+from app.services.standings_service import StandingsService
+from app.services.top_scorers_service import TopScorersService
+
 from app.db.repositories.mongo import (
     team_repository,
     fixture_repository,
-    fixture_lineups_repository
+    fixture_lineups_repository,
+    fixture_events_repository,
+    fixture_player_stat_repository,
+    standings_repository,
+    top_scorers_repository,
     )
 
 class Container(containers.DeclarativeContainer):
@@ -57,6 +66,26 @@ class Container(containers.DeclarativeContainer):
         fixture_lineups_repository.FixtureLineupRepository,
         client=mongo_db
     )
+    
+    fixture_events_repository = providers.Factory(
+        fixture_events_repository.FixtureEventRepository,
+        client=mongo_db
+    )
+    
+    fixture_player_stats_repository = providers.Factory(
+        fixture_player_stat_repository.FixturePlayerStatRepository,
+        client=mongo_db
+    )
+    
+    standings_repository = providers.Factory(
+        standings_repository.StandingsRepository,
+        client=mongo_db
+    )
+    
+    top_scorers_repository = providers.Factory(
+        top_scorers_repository.TopScorersRepository,
+        client=mongo_db
+    )
 
     team_service = providers.Factory(
         TeamService,
@@ -77,4 +106,30 @@ class Container(containers.DeclarativeContainer):
         fixture_repository=fixture_repository
     )
 
+    fixture_events_service = providers.Factory(
+        FixtureEventsService,
+        rapid_api_service=rapid_api_service,
+        fixture_events_repository=fixture_events_repository,
+        fixture_repository=fixture_repository
+    )
+    
+    fixture_player_stats_service = providers.Factory(
+        FixturePlayerStatsService,
+        rapid_api_service=rapid_api_service,
+        fixture_player_stats_repository=fixture_player_stats_repository,
+        fixture_repository=fixture_repository
+    )
+    
+    standings_service = providers.Factory(
+        StandingsService,
+        rapid_api_service=rapid_api_service,
+        standings_repository=standings_repository
+    )
+    
+    top_scorers_service = providers.Factory(
+        TopScorersService,
+        rapid_api_service=rapid_api_service,
+        top_scorers_repository=top_scorers_repository
+    )
+    
     

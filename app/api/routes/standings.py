@@ -8,24 +8,24 @@ from app.api.routes.common import CommonsPathDependency
 from app.models.schema.response import ApiResponse, ApiResponseStatus
 
 from app.api.dependencies.container import Container
-from app.services.team_service import TeamService
+from app.services.standings_service import StandingsService
 from dependency_injector.wiring import inject, Provide
 
 router = APIRouter()
 
 
-@router.post("/teams/{season}/{league_id}", 
-            name="teams:sync_teams",
-            summary = "Synchornize teams data",
-            description = "Retrive teams data from API and updates database",
+@router.post("/standings/{season}/{league_id}", 
+            name="standings:sync",
+            summary = "Synchornize standings data",
+            description = "Retrive standings data from API and updates database",
             status_code=status.HTTP_200_OK)
 @inject
-async def sync_teams(params: CommonsPathDependency,
-                     team_service: TeamService = Depends(Provide[Container.team_service])) -> Any:
-    await team_service.execute(season=params.season, league_id=params.league_id)
+async def sync_standings(params: CommonsPathDependency,
+                     standings_service: StandingsService = Depends(Provide[Container.standings_service])) -> Any:
+    await standings_service.execute(season=params.season, league_id=params.league_id)
     service_response = ApiResponse(season=params.season, 
                             league_id=params.league_id,
-                            service="teams",
+                            service="standings",
                             status= ApiResponseStatus.success)   
     return jsonable_encoder(service_response, exclude_none=True)
 
