@@ -49,6 +49,11 @@ async def sync_fixuture_lineup(params: CommonsPathDependency, fixture_id: int,
                             status= ApiResponseStatus.success)
     return jsonable_encoder(service_response, exclude_none=True)
 
+@router.post("/fixtures/events/{season}/{league_id}/{fixture_id}",
+            name="fixtures:sync_fixuture_events",
+            summary = "Synchornize fixture events data",
+            description = "Retrive fixture events data from API and updates database",
+            status_code=status.HTTP_200_OK)
 @inject
 async def sync_fixuture_events(params: CommonsPathDependency, fixture_id: int,
                                fixture_events_service: FixtureEventsService = Depends(Provide[Container.fixture_events_service])
@@ -62,6 +67,11 @@ async def sync_fixuture_events(params: CommonsPathDependency, fixture_id: int,
                             status= ApiResponseStatus.success)
     return jsonable_encoder(service_response, exclude_none=True)
 
+@router.post("/fixtures/player_stats/{season}/{league_id}/{fixture_id}",
+            name="fixtures:sync_fixuture_player_stats",
+            summary = "Synchornize fixture player statistics data",
+            description = "Retrive fixture player statistics data from API and updates database",
+            status_code=status.HTTP_200_OK)
 @inject
 async def sync_fixuture_player_stats(params: CommonsPathDependency, fixture_id: int,
                                fixture_player_stats_service: FixturePlayerStatsService = Depends(Provide[Container.fixture_player_stats_service])

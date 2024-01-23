@@ -22,11 +22,10 @@ class FixtureEventsService(BaseService):
         self.fixture_repository = fixture_repository
         
     async def call_api(self, season: int, league_id: int, fixture_id: int = None) -> Any:
-        logger.info(f"Fixture:fetch_from_api - season={season}, league_id={league_id}")
+        logger.info(f"Fixture:fetch_from_api - season={season}, league_id={league_id}, fixture_id={fixture_id}")
         api_endpoint = self._rapid_api_service.settings.fixtures_events_endpoint
         params = {
-            "season": season,
-            "league": league_id
+            "fixture": fixture_id,
         }
         with self.tracer.start_as_current_span("fixture_events.fetch.from.api"):
             api_response = await self._rapid_api_service.fetch_from_api(endpoint=api_endpoint, 
@@ -34,22 +33,69 @@ class FixtureEventsService(BaseService):
         
         fixture_events_obj = FixtureEventResponse.model_validate(api_response.response_data)
     
-        logger.debug(f"Fixture count got: {len(fixture_events_obj.response)}")
+        logger.debug(f"Fixture Events count got: {len(fixture_events_obj.response)}")
+        if fixture_events_obj:
+            fixture_events_obj.parameters.season = season
+            fixture_events_obj.parameters.league_id = league_id
         
         return fixture_events_obj
     
     def convert_to_domain(self, schema: FixtureEventResponse) -> list[FixtureEvent]:
-        logger.debug("Converting Fixture schema to domain model")
-        return None
+        logger.debug("Converting Fixture Events schema to domain model")
         
-    async def save_in_db(self, fixtures: list[FixtureEvent]) -> None:
+        fixture_events : list[FixtureEvent] = []
+        
+        for e in schema.response:
+            event = mapper.to(FixtureEvent).map(
+                schema, fields_mapping={
+                    "season": schema.parameters.season,
+                    "league_id": schema.parameters.league_id,
+                    "fixture_id": schema.parameters.fixture,
+                    "elapsed": e.time.elapsed,
+                    "elapsed_plus": e.time.extra,
+                    "team_id": e.team.id,
+                    "team_name": e.team.name,
+                    "player_id": e.player.id,
+                    "player_name": e.player.name,
+                    "assist_player_id": e.assist.id,
+                    "assist_player_name": e.assist.name,
+                    "event_type": e.type,
+                    "detail": e.detail,
+                    "comments": e.comments,
+                }
+            )
+            fixture_events.append(event)
+        
+        return fixture_events
+        
+    async def save_in_db(self, events: list[FixtureEvent]) -> None:
         logger.debug("Saving Fixture domain models in database")
         with self.tracer.start_as_current_span("mongo.fixture_events.save"):
-            await self.__save_in_mongo(fixtures=fixtures)
+            await self.__save_in_mongo(events=events)
     
     async def __save_in_mongo(self, events: list[FixtureEvent]) -> None:
-        logger.debug("Saving Fixture domain models in mongo database")
-        await self.fixture_event_repository.update_bulk(fixtures=events)
+        if len(events) == 0:
+            logger.error("Fixture events is not available")
+            return
+
+        fixture_event = events[0]
+        fixture_filter = {
+            "season": fixture_event.season,
+            "league_id": fixture_event.league_id,
+            "fixture_id": fixture_event.fixture_id,
+        }
+        
+        logger.info(f"Finding Fixture {fixture_filter} in mongo database")
+        fixture = await self.fixture_repository.findOne(filter=fixture_filter)
+        
+        if fixture is None:
+            logger.error(f"Fixture for {fixture_filter} is not available.")
+        else:
+            for event in events:
+                event.event_date = fixture.event_date
+        
+            logger.debug("Saving Fixture domain models in mongo database")
+            await self.fixture_events_repository.update_bulk(events=events)
     
         
         

@@ -1,11 +1,8 @@
-from datetime import datetime
 from loguru import logger
-from pymongo import UpdateOne
 
 from app.models.domain.standings import Standings
 from app.db.clients.mongo import MongoClient
 from app.db.repositories.base_repository import BaseRepository
-
 
 class StandingsRepository(BaseRepository):
 
@@ -13,7 +10,7 @@ class StandingsRepository(BaseRepository):
         self.client = client
         self.collection = self.client.db.get_collection("teams")
 
-    async def findOne(self, filter: dict) -> Team:
+    async def findOne(self, filter: dict) -> Standings:
         """This methods find a document asynchronously
 
         Args:

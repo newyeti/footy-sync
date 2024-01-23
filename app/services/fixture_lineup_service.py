@@ -32,8 +32,10 @@ class FixtureLineupService(BaseService):
                                                 params=params)
         
         fixture_lineup_obj = FixtureLineUpResponse.model_validate(api_response.response_data)
-        fixture_lineup_obj.parameters.season = season
-        fixture_lineup_obj.parameters.league_id = league_id
+        
+        if fixture_lineup_obj:
+            fixture_lineup_obj.parameters.season = season
+            fixture_lineup_obj.parameters.league_id = league_id
     
         logger.debug(f"Fixture Lineup count got: {len(fixture_lineup_obj.response)}")
         
