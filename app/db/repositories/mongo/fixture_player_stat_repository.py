@@ -1,6 +1,6 @@
 from loguru import logger
 
-from app.models.domain.fixture_player_stat import FixturePlayerStat
+from app.models.domain.fixture_player_stat import FixturePlayerStatistics
 from app.db.clients.mongo import MongoClient
 from app.db.repositories.base_repository import BaseRepository
 
@@ -10,7 +10,7 @@ class FixturePlayerStatRepository(BaseRepository):
         self.client = client
         self.collection = self.client.db.get_collection("fixture_player_stats")
     
-    async def findOne(self, filter: dict) -> FixturePlayerStat:
+    async def findOne(self, filter: dict) -> FixturePlayerStatistics:
         """This methods find a document asynchronously
 
         Args:
@@ -26,9 +26,9 @@ class FixturePlayerStatRepository(BaseRepository):
         }
 
         fixture_doc = await self.collection.find_one(filter=filter, projection=projection)
-        return FixturePlayerStat.model_validate(fixture_doc)
+        return FixturePlayerStatistics.model_validate(fixture_doc)
         
-    async def update(self, lineup: FixturePlayerStat) -> None:
+    async def update(self, lineup: FixturePlayerStatistics) -> None:
         """This method updates fixture lineups documents asynchronously
 
         Args:
@@ -36,7 +36,7 @@ class FixturePlayerStatRepository(BaseRepository):
         """
         await self.update_bulk([lineup])
         
-    async def update_bulk(self, player_stats: list[FixturePlayerStat]):
+    async def update_bulk(self, fixture_player_stats: list[FixturePlayerStatistics]):
         """This method updates fixture lineups documents asynchronously
 
         Args:
@@ -46,5 +46,5 @@ class FixturePlayerStatRepository(BaseRepository):
         logger.debug(f"Updating Fixture Lineup documents")
         
         await self.updateDocument(collection=self.collection, 
-                            filter_strs=["season", "league", "fixture_id", "team_id"],
-                            datalist=player_stats)
+                            filter_strs=["season", "league_id", "fixture_id", "team_id", "player_id"],
+                            datalist=fixture_player_stats)

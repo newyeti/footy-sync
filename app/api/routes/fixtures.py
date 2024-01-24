@@ -67,7 +67,7 @@ async def sync_fixuture_events(params: CommonsPathDependency, fixture_id: int,
                             status= ApiResponseStatus.success)
     return jsonable_encoder(service_response, exclude_none=True)
 
-@router.post("/fixtures/player_stats/{season}/{league_id}/{fixture_id}",
+@router.post("/fixtures/stats/{season}/{league_id}/{fixture_id}",
             name="fixtures:sync_fixuture_player_stats",
             summary = "Synchornize fixture player statistics data",
             description = "Retrive fixture player statistics data from API and updates database",

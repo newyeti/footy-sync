@@ -10,7 +10,6 @@ from app.api.dependencies.rapid_api import RapidApiService
 from app.db.repositories.mongo.fixture_repository import FixtureRepository
 from app.db.repositories.mongo.fixture_events_repository import FixtureEventRepository
 
-
 class FixtureEventsService(BaseService):
     def __init__(self,
                  rapid_api_service: RapidApiService,

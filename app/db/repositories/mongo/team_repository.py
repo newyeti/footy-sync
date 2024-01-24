@@ -47,5 +47,5 @@ class TeamRepository(BaseRepository):
         """
         
         await self.updateDocument(collection=self.collection, 
-                            filter_strs=["season", "league", "team_id"],
+                            filter_strs=["season", "league_id", "team_id"],
                             datalist=teams)

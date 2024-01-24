@@ -46,5 +46,5 @@ class FixtureLineupRepository(BaseRepository):
         logger.debug(f"Updating Fixture Lineup documents")
         
         await self.updateDocument(collection=self.collection, 
-                            filter_strs=["season", "league", "fixture_id", "team_id"],
+                            filter_strs=["season", "league_id", "fixture_id", "team_id"],
                             datalist=lineups)

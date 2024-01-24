@@ -47,5 +47,5 @@ class FixtureRepository(BaseRepository):
         logger.debug(f"Updating document for {filter}")
         
         await self.updateDocument(collection=self.collection, 
-                            filter_strs=["season", "league", "fixture_id"],
+                            filter_strs=["season", "league_id", "fixture_id"],
                             datalist=fixtures)

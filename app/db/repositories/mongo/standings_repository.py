@@ -44,5 +44,5 @@ class StandingsRepository(BaseRepository):
         """
         
         await self.updateDocument(collection=self.collection, 
-                            filter_strs=["season", "league"],
+                            filter_strs=["season", "league_id"],
                             datalist=standings)
