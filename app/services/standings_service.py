@@ -5,7 +5,7 @@ from automapper import mapper
 
 from app.services.base_service import BaseService
 from app.models.schema.standings import StandingsResponse
-from app.models.domain.standings import Standings 
+from app.models.domain.standings import Standings, TeamStanding
 from app.api.dependencies.rapid_api import RapidApiService
 from app.db.repositories.mongo.standings_repository import StandingsRepository
 
@@ -36,7 +36,79 @@ class StandingsService(BaseService):
     
     def convert_to_domain(self, schema: StandingsResponse) -> list[Standings]:
         logger.debug("Converting Fixture schema to domain model")
-        return None
+        
+        if len(schema.response) == 0:
+            return []
+        
+        league = schema.response[0].league
+        team_standings: list[TeamStanding] = []
+        last_updated = league.standings[0][0].update
+        
+        for standing in league.standings[0]:
+            team = {
+                    "team_id": standing.team.id,
+                    "team_name": standing.team.name,
+                    "team_logo": standing.team.logo,
+                }
+            all = {
+                    "played": standing.all.played,
+                    "win": standing.all.win,
+                    "draw": standing.all.draw,
+                    "lose": standing.all.lose,
+                    "goals": {
+                        "goals_for": standing.all.goals.for_,
+                        "goals_against": standing.all.goals.against,
+                    },
+                }
+            home = {
+                    "played": standing.home.played,
+                    "win": standing.home.win,
+                    "draw": standing.home.draw,
+                    "lose": standing.home.lose,
+                    "goals": {
+                        "goals_for": standing.home.goals.for_,
+                        "goals_against": standing.home.goals.against,
+                    },
+                }
+            away = {
+                    "played": standing.away.played,
+                    "win": standing.away.win,
+                    "draw": standing.away.draw,
+                    "lose": standing.away.lose,
+                    "goals": {
+                        "goals_for": standing.away.goals.for_,
+                        "goals_against": standing.away.goals.against,
+                    },
+                }
+            
+            team_standing: TeamStanding = {
+                "rank": standing.rank,
+                "team": team,
+                "points": standing.points,
+                "goals_diff": standing.goalsDiff,
+                "group": standing.group,
+                "form": standing.form,
+                "status": standing.status,
+                "description": standing.description,
+                "all": all,
+                "home": home,
+                "away": away,
+                "last_updated": standing.update,
+            }
+            
+            team_standings.append(team_standing)
+        
+        standings: Standings = mapper.to(Standings).map(league, fields_mapping={
+            "season": league.season,
+            "league_id": league.id,
+            "name": league.name,
+            "country": league.country,
+            "logo": league.logo,
+            "flag": league.flag,
+            "standings": team_standings,
+        })
+        
+        return [standings]
         
     async def save_in_db(self, standings: list[Standings]) -> None:
         logger.debug("Saving Fixture domain models in database")

@@ -8,7 +8,7 @@ class StandingsRepository(BaseRepository):
 
     def __init__(self, client: MongoClient) -> None:
         self.client = client
-        self.collection = self.client.db.get_collection("teams")
+        self.collection = self.client.db.get_collection("standings")
 
     async def findOne(self, filter: dict) -> Standings:
         """This methods find a document asynchronously
