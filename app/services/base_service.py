@@ -12,7 +12,7 @@ class BaseService(ABC):
             if schema_obj:
                 domain_obj = self.convert_to_domain(schema=schema_obj)
                 if domain_obj:
-                    await self.save_in_db(domain_obj)
+                    await self.save_in_db(domain_obj, season=season, league_id=league_id)
         except RapidApiException as e:
             logger.error(e)
             raise ServiceException(name=e.name, api_url=e.api_url, message=e.message)
@@ -30,7 +30,7 @@ class BaseService(ABC):
         ...
 
     @abstractmethod
-    async def save_in_db(self, domain: list[Any]) -> None:
+    async def save_in_db(self, domain: list[Any], season: int = None, league_id: int = None) -> None:
         ...
     
 

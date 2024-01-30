@@ -13,8 +13,7 @@ from dependency_injector.wiring import inject, Provide
 
 router = APIRouter()
 
-
-@router.post("/topscorers/{season}/{league_id}", 
+@router.post("/players/topscorers/{season}/{league_id}", 
             name="topscorers:sync",
             summary = "Synchornize top scorers data",
             description = "Retrive top scorers data from API and updates database",

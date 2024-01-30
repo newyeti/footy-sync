@@ -54,7 +54,7 @@ class BaseRepository(ABC):
      
     def update_conf(self, obj: Any) -> None:
         return {
-            "$set": obj.model_dump(),
+            "$set": obj.model_dump(by_alias=True),
             "$currentDate": {
                 "updatedAt": True
             },

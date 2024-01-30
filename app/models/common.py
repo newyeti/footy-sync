@@ -34,3 +34,16 @@ class RapidApiResponse(BaseModel):
     errors: Optional[Any]
     results: int
     paging: Paging
+
+class Team(BaseModel):
+    id : int
+    name: str
+    logo: Optional[str] = Field(default=None)
+    
+class League(BaseModel):
+    id: int
+    name: str
+    country: str
+    logo: str
+    flag: str
+    season: int

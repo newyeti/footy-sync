@@ -2,13 +2,13 @@ from typing import Any
 from loguru import logger
 from opentelemetry import trace
 from automapper import mapper
-
+from  motor.motor_asyncio import AsyncIOMotorCursor
 from app.services.base_service import BaseService
-from app.models.schema.top_scorers import TopScorersResponse
-from app.models.domain.top_scorers import TopScorers 
+from app.models.schema.top_statistics import TopStatisticsResponse
+from app.models.domain.top_statistics import Player, PlayerStatCategory
 from app.api.dependencies.rapid_api import RapidApiService
 from app.db.repositories.mongo.top_scorers_repository import TopScorersRepository
-
+ 
 class TopScorersService(BaseService):
     def __init__(self,
                  rapid_api_service: RapidApiService,
@@ -16,36 +16,158 @@ class TopScorersService(BaseService):
         self.__tracer = trace.get_tracer(__name__)
         self.__rapid_api_service = rapid_api_service
         self.__top_scorers_repository = top_scorers_repository
+        self.__category=PlayerStatCategory.SCORER.value
         
     async def call_api(self, season: int, league_id: int, fixture_id: int = None) -> Any:
         logger.info(f"Fixture:fetch_from_api - season={season}, league_id={league_id}")
-        api_endpoint = self.__rapid_api_service.settings.standings_endpoint
+        api_endpoint = self.__rapid_api_service.settings.top_scorers_endpoint
         params = {
             "season": season,
             "league": league_id
         }
-        with self.__tracer.start_as_current_span("standings.fetch.from.api"):
+        with self.__tracer.start_as_current_span("topscrorers.fetch.from.api"):
             api_response = await self.__rapid_api_service.fetch_from_api(endpoint=api_endpoint, 
                                                 params=params)
         
-        standings_obj = TopScorersResponse.model_validate(api_response.response_data)
+        Player_obj = TopStatisticsResponse.model_validate(api_response.response_data)
     
-        logger.debug(f"Fixture count got: {len(standings_obj.response)}")
+        logger.debug(f"Top Scorer count got: {len(Player_obj.response)}")
         
-        return standings_obj
+        return Player_obj
     
-    def convert_to_domain(self, schema: TopScorersResponse) -> list[TopScorers]:
-        logger.debug("Converting Fixture schema to domain model")
-        return None
+    def convert_to_domain(self, schema: TopStatisticsResponse) -> list[Player]:
+        logger.debug("Converting Player schema to domain model")
         
-    async def save_in_db(self, top_scorers: list[TopScorers]) -> None:
-        logger.debug("Saving Fixture domain models in database")
-        with self.__tracer.start_as_current_span("mongo.standings.save"):
-            await self.__save_in_mongo(top_scorers=top_scorers)
-    
-    async def __save_in_mongo(self, top_scorers: list[TopScorers]) -> None:
-        logger.debug("Saving Fixture domain models in mongo database")
-        await self.__top_scorers_repository.update_bulk(top_scorers==top_scorers)
+        players: list[Player] = []
+        
+        for p in schema.response:
+            statistic = p.statistics[0]
+            player = mapper.to(Player).map(p, fields_mapping={
+                "season": schema.parameters.season,
+                "league_id": schema.parameters.league,
+                "category": self.__category,
+                "player_id": p.player.id,
+                "player_name": p.player.name,
+                "detail": {
+                    "firstname": p.player.firstname,
+                    "lastname": p.player.lastname,
+                    "birth": {
+                        "date": p.player.birth.date,
+                        "place": p.player.birth.place,
+                        "country": p.player.birth.country,
+                    },
+                    "nationality": p.player.nationality,
+                    "height": p.player.height,
+                    "weight": p.player.height,
+                    "injured": p.player.injured,
+                    "photo": p.player.photo,
+                },
+                "team_id": statistic.team.id,
+                "team_name": statistic.team.name,
+                "games": {
+                    "appearences": statistic.games.appearences,
+                    "lineups": statistic.games.lineups,
+                    "minutes": statistic.games.minutes,
+                    "number": statistic.games.number,
+                    "position": statistic.games.position,
+                    "rating": statistic.games.rating,
+                    "captain": statistic.games.captain,
+                },
+                "substitutes":  {
+                    "in_": statistic.substitutes.in_,
+                    "out": statistic.substitutes.out,
+                    "bench": statistic.substitutes.bench, 
+                },
+                "shots": {
+                    "total": statistic.shots.total,
+                    "on": statistic.shots.on,
+                },
+                "goals": {
+                    "total": statistic.goals.total,
+                    "conceded": statistic.goals.conceded,
+                    "assists": statistic.goals.assists,
+                    "saves": statistic.goals.saves,
+                },
+                "passes": {
+                    "total": statistic.passes.total,
+                    "key": statistic.passes.key,
+                    "accuracy": statistic.passes.accuracy,
+                },
+                "tackles": {
+                    "total": statistic.tackles.total,
+                    "blocks": statistic.tackles.blocks,
+                    "interceptions": statistic.tackles.interceptions,
+                },
+                "duels": {
+                    "total": statistic.duels.total,
+                    "won": statistic.duels.won,
+                },
+                "dribbles": {
+                    "attempts": statistic.dribbles.attempts,
+                    "success": statistic.dribbles.success,
+                    "past": statistic.dribbles.past,
+                },
+                "fouls": {
+                    "drawn": statistic.fouls.drawn,
+                    "committed": statistic.fouls.committed,
+                },
+                "cards": {
+                    "yellow": statistic.cards.yellow,
+                    "yellowred": statistic.cards.yellowred,
+                    "red": statistic.cards.red,
+                },
+                "penalty": {
+                    "won": statistic.penalty.won,
+                    "committed": statistic.penalty.committed,
+                    "scored": statistic.penalty.committed,
+                    "missed": statistic.penalty.missed,
+                    "saved": statistic.penalty.saved,
+                }
+            })
+            players.append(player)            
 
+        return players
         
+    async def save_in_db(self, players: list[Player], season: int, league_id: int) -> None:
+        logger.debug("Saving players domain models in database")
+        
+        with self.__tracer.start_as_current_span("mongo.top_scorers.save"):
+            await self.__save_in_mongo(players=players, season=season, league_id=league_id)
     
+    async def __save_in_mongo(self, players: list[Player], season: int, league_id: int) -> None:
+        logger.debug("Saving Fixture domain models in mongo database")
+        
+        if players is None or len(players) == 0:
+            logger.error("No data to save top_scorers.")
+            return
+        
+        def convert_to_dict(players: list[Player]) -> dict[int, Player]:
+            player_dict  = {}
+            for p in players:
+                player_dict[p["player_id"]] = Player.model_validate(p)
+            return player_dict
+
+        with self.__tracer.start_as_current_span("mongo.top_scorers.find"):
+            players_cursor: AsyncIOMotorCursor = self.__top_scorers_repository.find({
+                "season": season,
+                "league_id": league_id,
+                "category": self.__category
+            })
+            players_in_db = await players_cursor.to_list(None) 
+            
+        existing_players: dict[int, Player] = convert_to_dict(players=players_in_db)
+        players_to_update: list[Player] = []
+        
+        for p in players:
+            if p.player_id in existing_players:
+                del existing_players[p.player_id]
+            players_to_update.append(p)
+        
+        logger.debug(f"Player to update: {len(players_to_update)}")
+        logger.debug(f"Player to remove: {len(existing_players.keys())}")
+        
+        with self.__tracer.start_as_current_span("mongo.top_scorers.update"):
+            await self.__top_scorers_repository.update_bulk(players=players_to_update)
+        
+        with self.__tracer.start_as_current_span("mongo.top_scorers.delete"):
+            await self.__top_scorers_repository.delete_bulk(players=existing_players.values())

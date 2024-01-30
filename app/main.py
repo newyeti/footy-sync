@@ -45,7 +45,7 @@ container_modules = [
         "app.api.routes.fixtures",
         "app.core.events",
         "app.api.routes.standings",
-        "app.api.routes.top_scorers",
+        "app.api.routes.top_statistics",
     ]
 
 
