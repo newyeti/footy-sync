@@ -7,26 +7,27 @@ from app.services.base_service import BaseService
 from app.models.schema.top_statistics import TopStatisticsResponse
 from app.models.domain.top_statistics import Player, PlayerStatCategory
 from app.api.dependencies.rapid_api import RapidApiService
-from app.db.repositories.mongo.top_scorers_repository import TopScorersRepository
+from app.db.repositories.mongo.player_statistics_repository import PlayerStatisticsRepository
  
 class TopScorersService(BaseService):
+    
     def __init__(self,
                  rapid_api_service: RapidApiService,
-                 top_scorers_repository: TopScorersRepository) -> None:
+                 player_statistics_repository: PlayerStatisticsRepository) -> None:
         self.__tracer = trace.get_tracer(__name__)
-        self.__rapid_api_service = rapid_api_service
-        self.__top_scorers_repository = top_scorers_repository
-        self.__category=PlayerStatCategory.SCORER.value
+        self.rapid_api_service = rapid_api_service
+        self.player_statistics_repository = player_statistics_repository
+        self.category=PlayerStatCategory.SCORER.value
         
     async def call_api(self, season: int, league_id: int, fixture_id: int = None) -> Any:
-        logger.info(f"Fixture:fetch_from_api - season={season}, league_id={league_id}")
-        api_endpoint = self.__rapid_api_service.settings.top_scorers_endpoint
+        logger.info(f"TopAssists:fetch_from_api - season={season}, league_id={league_id}")
+        api_endpoint = self.rapid_api_service.settings.top_scorers_endpoint
         params = {
             "season": season,
             "league": league_id
         }
         with self.__tracer.start_as_current_span("topscrorers.fetch.from.api"):
-            api_response = await self.__rapid_api_service.fetch_from_api(endpoint=api_endpoint, 
+            api_response = await self.rapid_api_service.fetch_from_api(endpoint=api_endpoint, 
                                                 params=params)
         
         Player_obj = TopStatisticsResponse.model_validate(api_response.response_data)
@@ -45,7 +46,7 @@ class TopScorersService(BaseService):
             player = mapper.to(Player).map(p, fields_mapping={
                 "season": schema.parameters.season,
                 "league_id": schema.parameters.league,
-                "category": self.__category,
+                "category": self.category,
                 "player_id": p.player.id,
                 "player_name": p.player.name,
                 "detail": {
@@ -148,10 +149,10 @@ class TopScorersService(BaseService):
             return player_dict
 
         with self.__tracer.start_as_current_span("mongo.top_scorers.find"):
-            players_cursor: AsyncIOMotorCursor = self.__top_scorers_repository.find({
+            players_cursor: AsyncIOMotorCursor = self.player_statistics_repository.find({
                 "season": season,
                 "league_id": league_id,
-                "category": self.__category
+                "category": self.category
             })
             players_in_db = await players_cursor.to_list(None) 
             
@@ -167,7 +168,7 @@ class TopScorersService(BaseService):
         logger.debug(f"Player to remove: {len(existing_players.keys())}")
         
         with self.__tracer.start_as_current_span("mongo.top_scorers.update"):
-            await self.__top_scorers_repository.update_bulk(players=players_to_update)
+            await self.player_statistics_repository.update_bulk(players=players_to_update)
         
         with self.__tracer.start_as_current_span("mongo.top_scorers.delete"):
-            await self.__top_scorers_repository.delete_bulk(players=existing_players.values())
+            await self.player_statistics_repository.delete_bulk(players=existing_players.values())

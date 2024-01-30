@@ -24,6 +24,7 @@ class RapidApiSetting(BaseSettings):
     fixtures_player_stat_endpoint: str = "/v3/fixtures/players"
     standings_endpoint: str = "/v3/standings"
     top_scorers_endpoint: str = "/v3/players/topscorers"
+    top_assists_endpoint: str = "/v3/players/topassists"
     daily_limit: int = 100
     cache_key: str = "FS::DAILY_RAPID_API_CALLS"
     cache_key_expiry_in_days: int = 7

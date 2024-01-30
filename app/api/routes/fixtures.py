@@ -33,7 +33,7 @@ async def sync_fixtures(params: CommonsPathDependency,
 
 @router.post("/fixtures/lineup/{season}/{league_id}/{fixture_id}",
             name="fixtures:sync_fixture_lineup",
-            summary = "Synchornize fixture data",
+            summary = "Synchornize fixture lineup data",
             description = "Retrive fixtures data from API and updates database",
             status_code=status.HTTP_200_OK)
 @inject

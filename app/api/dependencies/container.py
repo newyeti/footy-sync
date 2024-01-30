@@ -10,15 +10,16 @@ from app.services.fixture_events_service import FixtureEventsService
 from app.services.fixture_player_stats_service import FixturePlayerStatsService
 from app.services.standings_service import StandingsService
 from app.services.top_scorers_service import TopScorersService
+from app.services.top_assists_service import TopAssistsService
 
 from app.db.repositories.mongo import (
+    player_statistics_repository,
     team_repository,
     fixture_repository,
     fixture_lineups_repository,
     fixture_events_repository,
     fixture_player_stat_repository,
     standings_repository,
-    top_scorers_repository,
     )
 
 class Container(containers.DeclarativeContainer):
@@ -82,8 +83,8 @@ class Container(containers.DeclarativeContainer):
         client=mongo_db
     )
     
-    top_scorers_repository = providers.Factory(
-        top_scorers_repository.TopScorersRepository,
+    player_statistics_repository = providers.Factory(
+        player_statistics_repository.PlayerStatisticsRepository,
         client=mongo_db
     )
 
@@ -129,7 +130,13 @@ class Container(containers.DeclarativeContainer):
     top_scorers_service = providers.Factory(
         TopScorersService,
         rapid_api_service=rapid_api_service,
-        top_scorers_repository=top_scorers_repository
+        player_statistics_repository=player_statistics_repository
+    )
+    
+    top_assists_service = providers.Factory(
+        TopAssistsService,
+        rapid_api_service=rapid_api_service,
+        player_statistics_repository=player_statistics_repository
     )
     
     

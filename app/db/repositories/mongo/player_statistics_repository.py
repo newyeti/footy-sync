@@ -5,7 +5,7 @@ from app.db.clients.mongo import MongoClient
 from app.db.repositories.base_repository import BaseRepository
 from motor.motor_asyncio import AsyncIOMotorCursor
 
-class TopScorersRepository(BaseRepository):
+class PlayerStatisticsRepository(BaseRepository):
 
     def __init__(self, client: MongoClient) -> None:
         self.client = client

@@ -4,7 +4,7 @@ from enum import Enum
 
 class PlayerStatCategory(str, Enum):
     SCORER = "top_scorers"
-    ASSIST = "assists"
+    ASSIST = "top_assists"
     YELLOW_CARD = "yellow_cards"
     RED_CARD = "red_cards"
 

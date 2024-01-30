@@ -9,6 +9,7 @@ from app.models.schema.response import ApiResponse, ApiResponseStatus
 
 from app.api.dependencies.container import Container
 from app.services.top_scorers_service import TopScorersService
+from app.services.top_assists_service import TopAssistsService
 from dependency_injector.wiring import inject, Provide
 
 router = APIRouter()
@@ -28,3 +29,17 @@ async def sync_standings(params: CommonsPathDependency,
                             status= ApiResponseStatus.success)   
     return jsonable_encoder(service_response, exclude_none=True)
 
+@router.post("/players/topassists/{season}/{league_id}", 
+            name="topassists:sync",
+            summary = "Synchornize top assists data",
+            description = "Retrive top assists data from API and updates database",
+            status_code=status.HTTP_200_OK)
+@inject
+async def sync_standings(params: CommonsPathDependency,
+                     top_assists_service: TopAssistsService = Depends(Provide[Container.top_assists_service])) -> Any:
+    await top_assists_service.execute(season=params.season, league_id=params.league_id)
+    service_response = ApiResponse(season=params.season, 
+                            league_id=params.league_id,
+                            service="top_assists",
+                            status= ApiResponseStatus.success)   
+    return jsonable_encoder(service_response, exclude_none=True)
