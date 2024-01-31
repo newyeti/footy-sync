@@ -70,7 +70,7 @@ async def sync_standings(params: CommonsPathDependency,
             status_code=status.HTTP_200_OK)
 @inject
 async def sync_standings(params: CommonsPathDependency,
-                     top_yellowcards_service: TopRedCardsService = Depends(Provide[Container.top_yellowcards_service])) -> Any:
+                     top_yellowcards_service: TopYellowCardsService = Depends(Provide[Container.top_yellowcards_service])) -> Any:
     await top_yellowcards_service.execute(season=params.season, league_id=params.league_id)
     service_response = ApiResponse(season=params.season, 
                             league_id=params.league_id,
