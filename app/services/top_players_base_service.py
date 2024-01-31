@@ -5,29 +5,29 @@ from automapper import mapper
 from  motor.motor_asyncio import AsyncIOMotorCursor
 from app.services.base_service import BaseService
 from app.models.schema.top_statistics import TopStatisticsResponse
-from app.models.domain.top_statistics import Player, PlayerStatCategory
+from app.models.domain.top_statistics import Player
 from app.api.dependencies.rapid_api import RapidApiService
 from app.db.repositories.mongo.player_statistics_repository import PlayerStatisticsRepository
  
-class TopScorersService(BaseService):
+class TopPlayerService(BaseService):
     
     def __init__(self,
                  rapid_api_service: RapidApiService,
                  player_statistics_repository: PlayerStatisticsRepository) -> None:
-        self.__tracer = trace.get_tracer(__name__)
+        self.tracer = trace.get_tracer(__name__)
         self.rapid_api_service = rapid_api_service
         self.player_statistics_repository = player_statistics_repository
-        self.category=PlayerStatCategory.SCORER.value
+        self.category=""
+        self.api_endpoint = ""
         
     async def call_api(self, season: int, league_id: int, fixture_id: int = None) -> Any:
-        logger.info(f"TopAssists:fetch_from_api - season={season}, league_id={league_id}")
-        api_endpoint = self.rapid_api_service.settings.top_scorers_endpoint
+        logger.info(f"{self.category}: fetch_from_api - season={season}, league_id={league_id}")
         params = {
             "season": season,
             "league": league_id
         }
-        with self.__tracer.start_as_current_span("topscrorers.fetch.from.api"):
-            api_response = await self.rapid_api_service.fetch_from_api(endpoint=api_endpoint, 
+        with self.tracer.start_as_current_span(f"{self.category}.fetch.from.api"):
+            api_response = await self.rapid_api_service.fetch_from_api(endpoint=self.api_endpoint, 
                                                 params=params)
         
         Player_obj = TopStatisticsResponse.model_validate(api_response.response_data)
@@ -37,7 +37,7 @@ class TopScorersService(BaseService):
         return Player_obj
     
     def convert_to_domain(self, schema: TopStatisticsResponse) -> list[Player]:
-        logger.debug("Converting Player schema to domain model")
+        logger.debug(f"Converting {self.category} player schema to domain model")
         
         players: list[Player] = []
         
@@ -132,11 +132,11 @@ class TopScorersService(BaseService):
     async def save_in_db(self, players: list[Player], season: int, league_id: int) -> None:
         logger.debug("Saving players domain models in database")
         
-        with self.__tracer.start_as_current_span("mongo.top_scorers.save"):
+        with self.tracer.start_as_current_span(f"mongo.{self.category}.save"):
             await self.__save_in_mongo(players=players, season=season, league_id=league_id)
     
     async def __save_in_mongo(self, players: list[Player], season: int, league_id: int) -> None:
-        logger.debug("Saving Fixture domain models in mongo database")
+        logger.debug(f"Saving {self.category} domain models in mongo database")
         
         if players is None or len(players) == 0:
             logger.error("No data to save top_scorers.")
@@ -148,7 +148,7 @@ class TopScorersService(BaseService):
                 player_dict[p["player_id"]] = Player.model_validate(p)
             return player_dict
 
-        with self.__tracer.start_as_current_span("mongo.top_scorers.find"):
+        with self.tracer.start_as_current_span(f"mongo.{self.category}.find"):
             players_cursor: AsyncIOMotorCursor = self.player_statistics_repository.find({
                 "season": season,
                 "league_id": league_id,
@@ -164,11 +164,11 @@ class TopScorersService(BaseService):
                 del existing_players[p.player_id]
             players_to_update.append(p)
         
-        logger.debug(f"Player to update: {len(players_to_update)}")
-        logger.debug(f"Player to remove: {len(existing_players.keys())}")
+        logger.debug(f"{self.category} : Player to update: {len(players_to_update)}")
+        logger.debug(f"{self.category} : Player to remove: {len(existing_players.keys())}")
         
-        with self.__tracer.start_as_current_span("mongo.top_scorers.update"):
+        with self.tracer.start_as_current_span(f"mongo.{self.category}.update"):
             await self.player_statistics_repository.update_bulk(players=players_to_update)
         
-        with self.__tracer.start_as_current_span("mongo.top_scorers.delete"):
+        with self.tracer.start_as_current_span(f"mongo.{self.category}.delete"):
             await self.player_statistics_repository.delete_bulk(players=existing_players.values())

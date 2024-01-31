@@ -8,8 +8,12 @@ from app.api.routes.common import CommonsPathDependency
 from app.models.schema.response import ApiResponse, ApiResponseStatus
 
 from app.api.dependencies.container import Container
-from app.services.top_scorers_service import TopScorersService
-from app.services.top_assists_service import TopAssistsService
+from app.services.top_players_service import (
+    TopScorersService,
+    TopAssistsService,
+    TopRedCardsService,
+    TopYellowCardsService,
+)
 from dependency_injector.wiring import inject, Provide
 
 router = APIRouter()
@@ -41,5 +45,35 @@ async def sync_standings(params: CommonsPathDependency,
     service_response = ApiResponse(season=params.season, 
                             league_id=params.league_id,
                             service="top_assists",
+                            status= ApiResponseStatus.success)   
+    return jsonable_encoder(service_response, exclude_none=True)
+
+@router.post("/players/topredcards/{season}/{league_id}", 
+            name="topreadcards:sync",
+            summary = "Synchornize top red carded players",
+            description = "Retrive top red carded players data from API and updates database",
+            status_code=status.HTTP_200_OK)
+@inject
+async def sync_standings(params: CommonsPathDependency,
+                     top_redcards_service: TopRedCardsService = Depends(Provide[Container.top_redcards_service])) -> Any:
+    await top_redcards_service.execute(season=params.season, league_id=params.league_id)
+    service_response = ApiResponse(season=params.season, 
+                            league_id=params.league_id,
+                            service="top_red_cards",
+                            status= ApiResponseStatus.success)   
+    return jsonable_encoder(service_response, exclude_none=True)
+
+@router.post("/players/topyellowcards/{season}/{league_id}", 
+            name="topyellowcards:sync",
+            summary = "Synchornize top yellow carded players",
+            description = "Retrive top yellow carded players data from API and updates database",
+            status_code=status.HTTP_200_OK)
+@inject
+async def sync_standings(params: CommonsPathDependency,
+                     top_yellowcards_service: TopRedCardsService = Depends(Provide[Container.top_yellowcards_service])) -> Any:
+    await top_yellowcards_service.execute(season=params.season, league_id=params.league_id)
+    service_response = ApiResponse(season=params.season, 
+                            league_id=params.league_id,
+                            service="top_yellow_cards",
                             status= ApiResponseStatus.success)   
     return jsonable_encoder(service_response, exclude_none=True)

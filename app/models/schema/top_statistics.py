@@ -17,8 +17,8 @@ class Player(BaseModel):
     name: str
     firstname: str
     lastname: str
-    age: Optional[int | None] = Field(default=0)
-    birth: Optional[Brith]
+    age: Optional[int | None] = Field(default=None)
+    birth: Optional[Brith|None] = Field(default=None)
     nationality: Optional[str | None] = Field(default=None)
     height: Optional[str | None] = Field(default=None)
     weight: Optional[str | None] = Field(default=None)
@@ -26,63 +26,63 @@ class Player(BaseModel):
     photo: Optional[str | None] = Field(default=None)
 
 class Games(BaseModel):
-    appearences: int = Field(default=0)
-    lineups: Optional[int | None] = Field(default=0)
-    minutes: Optional[int | None] = Field(default=0)
-    number: Optional[int] = Field(default=0)
+    appearences: Optional[int | None] = Field(default=None)
+    lineups: Optional[int | None] = Field(default=None)
+    minutes: Optional[int | None] = Field(default=None)
+    number: Optional[int] = Field(default=None)
     position: Optional[str | None] = Field(default=None)
     rating: Optional[str | None] = Field(default=None)
     captain: Optional[bool] = Field(default=False)
 
 class Substitutes(BaseModel):
-    in_: Optional[int | None] = Field(default=0, alias="in")
-    out: Optional[int | None] = Field(default=0)
-    bench: Optional[int | None] = Field(default=0)
+    in_: Optional[int | None] = Field(default=None, alias="in")
+    out: Optional[int | None] = Field(default=None)
+    bench: Optional[int | None] = Field(default=None)
 
 class Shots(BaseModel):
-    total: int = Field(default=0)
-    on: int = Field(default=0)
+    total: Optional[int|None] = Field(default=None)
+    on: Optional[int|None] = Field(default=None)
 
 class Goals(BaseModel):
-    total: int = Field(default=0)
-    conceded: Optional[int | None] = Field(default=0)
-    assists: Optional[int | None] = Field(default=0)
-    saves: Optional[int | None] = Field(default=0) 
+    total: Optional[int|None] = Field(default=None)
+    conceded: Optional[int | None] = Field(default=None)
+    assists: Optional[int | None] = Field(default=None)
+    saves: Optional[int | None] = Field(default=None) 
 
 class Passes(BaseModel):
-    total: Optional[int | None] = Field(default=0)
-    key: Optional[int | None] = Field(default=0)
-    accuracy: Optional[int | None] = Field(default=0)
+    total: Optional[int | None] = Field(default=None)
+    key: Optional[int | None] = Field(default=None)
+    accuracy: Optional[int | None] = Field(default=None)
 
 class Tackles(BaseModel):
-    total: Optional[int | None] = Field(default=0)
-    blocks: Optional[int | None] = Field(default=0)
-    interceptions: Optional[int | None] = Field(default=0)
+    total: Optional[int | None] = Field(default=None)
+    blocks: Optional[int | None] = Field(default=None)
+    interceptions: Optional[int | None] = Field(default=None)
 
 class Duels(BaseModel):
-    total: Optional[int | None] = Field(default=0)
-    won: Optional[int | None] = Field(default=0)
+    total: Optional[int | None] = Field(default=None)
+    won: Optional[int | None] = Field(default=None)
 
 class Dribbles(BaseModel):
-    attempts: Optional[int | None] = Field(default=0)
-    success: Optional[int | None] = Field(default=0)
-    past: Optional[int | None] = Field(default=0)
+    attempts: Optional[int | None] = Field(default=None)
+    success: Optional[int | None] = Field(default=None)
+    past: Optional[int | None] = Field(default=None)
 
 class Fouls(BaseModel):
-    drawn: Optional[int | None] = Field(default=0)
-    committed: Optional[int | None] = Field(default=0)
+    drawn: Optional[int | None] = Field(default=None)
+    committed: Optional[int | None] = Field(default=None)
 
 class Cards(BaseModel):
-    yellow: Optional[int | None] = Field(default=0)
-    yellowred: Optional[int | None] = Field(default=0)
-    red: Optional[int | None] = Field(default=0)
+    yellow: Optional[int | None] = Field(default=None)
+    yellowred: Optional[int | None] = Field(default=None)
+    red: Optional[int | None] = Field(default=None)
 
 class Penalty(BaseModel):
-    won: Optional[int | None] = Field(default=0)
-    committed: Optional[int | None] = Field(default=0)
-    scored: Optional[int | None] = Field(default=0)
-    missed: Optional[int | None] = Field(default=0)
-    saved: Optional[int | None] = Field(default=0)
+    won: Optional[int | None] = Field(default=None)
+    committed: Optional[int | None] = Field(default=None)
+    scored: Optional[int | None] = Field(default=None)
+    missed: Optional[int | None] = Field(default=None)
+    saved: Optional[int | None] = Field(default=None)
 
 class Statistics(BaseModel):
     team: Team
