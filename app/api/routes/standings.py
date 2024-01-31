@@ -19,7 +19,8 @@ router = APIRouter()
             summary = "Synchornize standings data",
             description = "Retrive standings data from API and updates database",
             status_code=status.HTTP_200_OK,
-            response_model=ApiResponse)
+            response_model=ApiResponse,
+            response_model_exclude_defaults=True)
 @inject
 async def sync_standings(params: CommonsPathDependency,
                      standings_service: StandingsService = Depends(Provide[Container.standings_service])) -> Any:

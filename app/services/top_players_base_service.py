@@ -37,7 +37,7 @@ class TopPlayerService(BaseService, ABC):
         
         return Player_obj
     
-    def convert_to_domain(self, schema: TopStatisticsResponse) -> list[Player]:
+    def convert_to_domain(self, schema: TopStatisticsResponse, season: int, league_id: int) -> list[Player]:
         logger.debug(f"Converting {self.category} player schema to domain model")
         
         players: list[Player] = []

@@ -5,7 +5,7 @@ from automapper import mapper
 
 from app.services.base_service import BaseService
 from app.models.schema.fixture import FixtureResponse
-from app.models.domain.fixture import Fixture, Team, Goal, Score
+from app.models.domain.fixture import Fixture
 from app.api.dependencies.rapid_api import RapidApiService
 from app.db.repositories.mongo.fixture_repository import FixtureRepository as MongoFixtureRepository
 
@@ -20,10 +20,19 @@ class FixtureService(BaseService):
     async def call_api(self, season: int, league_id: int, fixture_id: int = None) -> Any:
         logger.info(f"Fixture:fetch_from_api - season={season}, league_id={league_id}")
         api_endpoint = self._rapid_api_service.settings.fixtures_endpoint
-        params = {
+        
+        if fixture_id:
+            params = {
+                "id": fixture_id
+            }
+        else:
+           params = {
             "season": season,
             "league": league_id
         }
+            
+        logger.debug(f"query parameters: {params}")
+        
         with self.tracer.start_as_current_span("fixtures.fetch.from.api"):
             api_response = await self._rapid_api_service.fetch_from_api(endpoint=api_endpoint, 
                                                 params=params)
@@ -34,7 +43,10 @@ class FixtureService(BaseService):
         
         return fixtures_obj
     
-    def convert_to_domain(self, schema: FixtureResponse) -> list[Fixture]:
+    def convert_to_domain(self, schema: FixtureResponse, season: int = None, league_id: int = None) -> list[Fixture]:
+        if schema and len(schema.response) == 0:
+            return
+        
         logger.debug("Converting Fixture schema to domain model")
         
         fixtures : list[Fixture] = []
@@ -67,8 +79,8 @@ class FixtureService(BaseService):
                 score["penalty"] = f"{f.score.penalty.home}-{f.score.penalty.away}"
             
             fixture = mapper.to(Fixture).map(schema, fields_mapping={
-                "season": schema.parameters.season,
-                "league_id": schema.parameters.league,
+                "season": season,
+                "league_id": league_id,
                 "fixture_id": f.fixture.id,
                 "league_name": f.league.name,
                 "event_date": f.fixture.date,
@@ -89,7 +101,7 @@ class FixtureService(BaseService):
     
         return fixtures
         
-    async def save_in_db(self, fixtures: list[Fixture]) -> None:
+    async def save_in_db(self, fixtures: list[Fixture], season: int = None, league_id: int = None) -> None:
         logger.debug("Saving Fixture domain models in database")
         with self.tracer.start_as_current_span("mongo.team.save"):
             await self.__save_in_mongo(fixtures=fixtures)

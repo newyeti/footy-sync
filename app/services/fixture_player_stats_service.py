@@ -32,15 +32,11 @@ class FixturePlayerStatsService(BaseService):
                                                 params=params)
         
         fixture_player_stats_obj = FixtureStatResponse.model_validate(api_response.response_data)
-
-        if fixture_player_stats_obj:
-            fixture_player_stats_obj.parameters.season = season
-            fixture_player_stats_obj.parameters.league_id = league_id
-            logger.debug(f"Fixture count got: {len(fixture_player_stats_obj.response)}")
+        logger.debug(f"Fixture count got: {len(fixture_player_stats_obj.response)}")
         
         return fixture_player_stats_obj
     
-    def convert_to_domain(self, schema: FixtureStatResponse) -> list[FixturePlayerStatistics]:
+    def convert_to_domain(self, schema: FixtureStatResponse, season: int, league_id: int) -> list[FixturePlayerStatistics]:
         logger.debug("Converting Fixture schema to domain model")
         fixture_statistics: list[FixturePlayerStatistics] = []
         
@@ -48,8 +44,8 @@ class FixturePlayerStatsService(BaseService):
             for player in stat.players:
                 statistics = player.statistics[0]
                 player_stat = mapper.to(FixturePlayerStatistics).map(stat, fields_mapping={
-                    "season": schema.parameters.season,
-                    "league_id": schema.parameters.league_id,
+                    "season": season,
+                    "league_id": league_id,
                     "fixture_id": schema.parameters.fixture,
                     "team_id": stat.team.id,
                     "team_name": stat.team.name,
@@ -110,7 +106,7 @@ class FixturePlayerStatsService(BaseService):
         
         return fixture_statistics
         
-    async def save_in_db(self, fixture_player_stats: list[FixturePlayerStatistics]) -> None:
+    async def save_in_db(self, fixture_player_stats: list[FixturePlayerStatistics], season: int, league_id: int) -> None:
         logger.debug("Saving Fixture domain models in database")
         with self.tracer.start_as_current_span("mongo.fixture_player_stats.save"):
             await self.__save_in_mongo(fixture_player_stats=fixture_player_stats)

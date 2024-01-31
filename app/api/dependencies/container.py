@@ -4,7 +4,7 @@ from app.api.dependencies.cache import CacheService
 from app.db.clients import redis, mongo, bigquery, kafka
 from app.api.dependencies.rapid_api import RapidApiService
 from app.services.team_service import TeamService
-from app.services.fixture_service import FixtureService
+from app.services.fixtures_service import FixtureService
 from app.services.fixture_lineup_service import FixtureLineupService
 from app.services.fixture_events_service import FixtureEventsService
 from app.services.fixture_player_stats_service import FixturePlayerStatsService

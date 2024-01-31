@@ -42,7 +42,7 @@ class TeamService(BaseService):
         return teams_obj
 
 
-    def convert_to_domain(self, schema: TeamInRapidApiResponse) -> list[Team]:
+    def convert_to_domain(self, schema: TeamInRapidApiResponse, season: int, league_id: int) -> list[Team]:
         logger.debug("Converting schema to domain model")
         
         teams : list[Team] = []
@@ -73,7 +73,7 @@ class TeamService(BaseService):
         return teams
 
 
-    async def save_in_db(self, teams: list[Team]) -> None:
+    async def save_in_db(self, teams: list[Team], season: int, league_id: int) -> None:
         logger.debug("Saving team domain models in database")
         with self.tracer.start_as_current_span("mongo.team.save"):
             await self.__save_in_mongo(teams=teams)

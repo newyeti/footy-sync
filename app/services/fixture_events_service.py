@@ -33,13 +33,10 @@ class FixtureEventsService(BaseService):
         fixture_events_obj = FixtureEventResponse.model_validate(api_response.response_data)
     
         logger.debug(f"Fixture Events count got: {len(fixture_events_obj.response)}")
-        if fixture_events_obj:
-            fixture_events_obj.parameters.season = season
-            fixture_events_obj.parameters.league_id = league_id
         
         return fixture_events_obj
     
-    def convert_to_domain(self, schema: FixtureEventResponse) -> list[FixtureEvent]:
+    def convert_to_domain(self, schema: FixtureEventResponse, season: int, league_id: int) -> list[FixtureEvent]:
         logger.debug("Converting Fixture Events schema to domain model")
         
         fixture_events : list[FixtureEvent] = []
@@ -47,8 +44,8 @@ class FixtureEventsService(BaseService):
         for e in schema.response:
             event = mapper.to(FixtureEvent).map(
                 schema, fields_mapping={
-                    "season": schema.parameters.season,
-                    "league_id": schema.parameters.league_id,
+                    "season": season,
+                    "league_id": league_id,
                     "fixture_id": schema.parameters.fixture,
                     "elapsed": e.time.elapsed,
                     "elapsed_plus": e.time.extra,
@@ -67,7 +64,7 @@ class FixtureEventsService(BaseService):
         
         return fixture_events
         
-    async def save_in_db(self, events: list[FixtureEvent]) -> None:
+    async def save_in_db(self, events: list[FixtureEvent], season: int = None, league_id: int = None) -> None:
         logger.debug("Saving Fixture domain models in database")
         with self.tracer.start_as_current_span("mongo.fixture_events.save"):
             await self.__save_in_mongo(events=events)

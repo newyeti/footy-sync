@@ -34,15 +34,14 @@ class StandingsService(BaseService):
         
         return standings_obj
     
-    def convert_to_domain(self, schema: StandingsResponse) -> list[Standings]:
-        logger.debug("Converting Fixture schema to domain model")
-        
+    def convert_to_domain(self, schema: StandingsResponse, season: int, league_id: int) -> list[Standings]:
         if len(schema.response) == 0:
             return []
+
+        logger.debug("Converting Fixture schema to domain model")
         
         league = schema.response[0].league
         team_standings: list[TeamStanding] = []
-        last_updated = league.standings[0][0].update
         
         for standing in league.standings[0]:
             team = {
@@ -110,7 +109,7 @@ class StandingsService(BaseService):
         
         return [standings]
         
-    async def save_in_db(self, standings: list[Standings]) -> None:
+    async def save_in_db(self, standings: list[Standings], season: int, league_id: int) -> None:
         logger.debug("Saving Fixture domain models in database")
         with self.tracer.start_as_current_span("mongo.standings.save"):
             await self.__save_in_mongo(standings=standings)

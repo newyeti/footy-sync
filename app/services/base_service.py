@@ -10,7 +10,7 @@ class BaseService(ABC):
         try:
             schema_obj = await self.call_api(season=season, league_id=league_id, fixture_id=fixture_id)
             if schema_obj:
-                domain_obj = self.convert_to_domain(schema=schema_obj)
+                domain_obj = self.convert_to_domain(schema=schema_obj, season=season, league_id=league_id)
                 if domain_obj:
                     await self.save_in_db(domain_obj, season=season, league_id=league_id)
         except RapidApiException as e:
@@ -26,7 +26,7 @@ class BaseService(ABC):
         ...
 
     @abstractmethod
-    def convert_to_domain(self, schema: Any) -> Any:
+    def convert_to_domain(self, schema: Any, season: int = None, league_id: int = None) -> Any:
         ...
 
     @abstractmethod

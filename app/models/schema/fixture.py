@@ -64,10 +64,10 @@ class ResponseData(BaseModel):
     score: Score
 
 class Parameters(BaseModel):
-    league: Optional[int]
-    season: Optional[int]
-    fixture_id: Optional[int] = None
-    date: Optional[str] = None
+    league: Optional[int | None] = None
+    season: Optional[int | None] = None
+    fixture_id: Optional[int | None] = None
+    date: Optional[str | None] = None
 
 class FixtureResponse(RapidApiResponse):
     parameters: Parameters

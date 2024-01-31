@@ -32,16 +32,12 @@ class FixtureLineupService(BaseService):
                                                 params=params)
         
         fixture_lineup_obj = FixtureLineUpResponse.model_validate(api_response.response_data)
-        
-        if fixture_lineup_obj:
-            fixture_lineup_obj.parameters.season = season
-            fixture_lineup_obj.parameters.league_id = league_id
     
         logger.debug(f"Fixture Lineup count got: {len(fixture_lineup_obj.response)}")
         
         return fixture_lineup_obj
     
-    def convert_to_domain(self, schema: FixtureLineUpResponse) -> list[FixtureLineup]:
+    def convert_to_domain(self, schema: FixtureLineUpResponse, season: int, league_id: int) -> list[FixtureLineup]:
         logger.debug("Converting Fixture schema to domain model")
         
         fixture_lineups : list[FixtureLineup] = []
@@ -51,8 +47,8 @@ class FixtureLineupService(BaseService):
             substitutePlayers: list[Player] = self.__map_players(lineup.substitutes)
             
             fixture_lineup = mapper.to(FixtureLineup).map(schema, fields_mapping={
-                "season": schema.parameters.season,
-                "league_id": schema.parameters.league_id,
+                "season": season,
+                "league_id": league_id,
                 "fixture_id": schema.parameters.fixture,
                 "team_id": lineup.team.id,
                 "team_name": lineup.team.name,
@@ -69,7 +65,7 @@ class FixtureLineupService(BaseService):
     
         return fixture_lineups
         
-    async def save_in_db(self, lineups: list[FixtureLineup]) -> None:
+    async def save_in_db(self, lineups: list[FixtureLineup], season: int = None, league_id: int = None) -> None:
         logger.debug("Saving Fixture Lineup domain models in database")
         with self.tracer.start_as_current_span("mongo.team.save"):
             await self.__save_in_mongo(lineups=lineups)
