@@ -22,7 +22,8 @@ router = APIRouter()
             name="topscorers:sync",
             summary = "Synchornize top scorering players data",
             description = "Retrive top scorers players data from API and updates database",
-            status_code=status.HTTP_200_OK)
+            status_code=status.HTTP_200_OK,
+            response_model=ApiResponse)
 @inject
 async def sync_standings(params: CommonsPathDependency,
                      top_scorers_service: TopScorersService = Depends(Provide[Container.top_scorers_service])) -> Any:
@@ -37,7 +38,8 @@ async def sync_standings(params: CommonsPathDependency,
             name="topassists:sync",
             summary = "Synchornize top assisting players data",
             description = "Retrive top assisting players data from API and updates database",
-            status_code=status.HTTP_200_OK)
+            status_code=status.HTTP_200_OK,
+            response_model=ApiResponse)
 @inject
 async def sync_standings(params: CommonsPathDependency,
                      top_assists_service: TopAssistsService = Depends(Provide[Container.top_assists_service])) -> Any:
@@ -52,7 +54,8 @@ async def sync_standings(params: CommonsPathDependency,
             name="topreadcards:sync",
             summary = "Synchornize top red carded players data",
             description = "Retrive top red carded players data from API and updates database",
-            status_code=status.HTTP_200_OK)
+            status_code=status.HTTP_200_OK,
+            response_model=ApiResponse)
 @inject
 async def sync_standings(params: CommonsPathDependency,
                      top_redcards_service: TopRedCardsService = Depends(Provide[Container.top_redcards_service])) -> Any:
@@ -67,7 +70,8 @@ async def sync_standings(params: CommonsPathDependency,
             name="topyellowcards:sync",
             summary = "Synchornize top yellow carded players data",
             description = "Retrive top yellow carded players data from API and updates database",
-            status_code=status.HTTP_200_OK)
+            status_code=status.HTTP_200_OK,
+            response_model=ApiResponse)
 @inject
 async def sync_standings(params: CommonsPathDependency,
                      top_yellowcards_service: TopYellowCardsService = Depends(Provide[Container.top_yellowcards_service])) -> Any:

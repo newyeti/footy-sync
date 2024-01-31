@@ -30,8 +30,7 @@ class ApiResponse(BaseModel):
                 {
                     "season": 2023,
                     "league_id": 39,
-                    "fixture_id": 12345,
-                    "service": "teams",
+                    "service": "service_name",
                     "status": "success",
                     "message": "Data sychnorized successfully."
                 }

@@ -20,7 +20,8 @@ router = APIRouter()
             name="fixtures:sync_fixtures",
             summary = "Synchornize fixture data",
             description = "Retrive fixtures data from API and updates database",
-            status_code=status.HTTP_200_OK)
+            status_code=status.HTTP_200_OK,
+            response_model=ApiResponse)
 @inject
 async def sync_fixtures(params: CommonsPathDependency,
                      fixture_service: FixtureService = Depends(Provide[Container.fixture_service])) -> Any:
@@ -35,7 +36,8 @@ async def sync_fixtures(params: CommonsPathDependency,
             name="fixtures:sync_fixture_lineup",
             summary = "Synchornize fixture lineup data",
             description = "Retrive fixtures data from API and updates database",
-            status_code=status.HTTP_200_OK)
+            status_code=status.HTTP_200_OK,
+            response_model=ApiResponse)
 @inject
 async def sync_fixuture_lineup(params: CommonsPathDependency, fixture_id: int,
                                fixture_lineup_service: FixtureLineupService = Depends(Provide[Container.fixture_lineup_service])
@@ -53,7 +55,8 @@ async def sync_fixuture_lineup(params: CommonsPathDependency, fixture_id: int,
             name="fixtures:sync_fixuture_events",
             summary = "Synchornize fixture events data",
             description = "Retrive fixture events data from API and updates database",
-            status_code=status.HTTP_200_OK)
+            status_code=status.HTTP_200_OK,
+            response_model=ApiResponse)
 @inject
 async def sync_fixuture_events(params: CommonsPathDependency, fixture_id: int,
                                fixture_events_service: FixtureEventsService = Depends(Provide[Container.fixture_events_service])
@@ -71,7 +74,8 @@ async def sync_fixuture_events(params: CommonsPathDependency, fixture_id: int,
             name="fixtures:sync_fixuture_player_stats",
             summary = "Synchornize fixture player statistics data",
             description = "Retrive fixture player statistics data from API and updates database",
-            status_code=status.HTTP_200_OK)
+            status_code=status.HTTP_200_OK,
+            response_model=ApiResponse)
 @inject
 async def sync_fixuture_player_stats(params: CommonsPathDependency, fixture_id: int,
                                fixture_player_stats_service: FixturePlayerStatsService = Depends(Provide[Container.fixture_player_stats_service])

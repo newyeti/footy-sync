@@ -18,7 +18,8 @@ router = APIRouter()
             name="teams:sync_teams",
             summary = "Synchornize teams data",
             description = "Retrive teams data from API and updates database",
-            status_code=status.HTTP_200_OK)
+            status_code=status.HTTP_200_OK,
+            response_model=ApiResponse)
 @inject
 async def sync_teams(params: CommonsPathDependency,
                      team_service: TeamService = Depends(Provide[Container.team_service])) -> Any:
