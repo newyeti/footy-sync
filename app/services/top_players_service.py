@@ -7,7 +7,8 @@ from app.models.domain.top_statistics import PlayerStatCategory
 from app.api.dependencies.rapid_api import RapidApiService
 from app.services.top_players_base_service import TopPlayerService
 from app.db.repositories.mongo.player_statistics_repository import PlayerStatisticsRepository
- 
+
+
 class TopScorersService(TopPlayerService):
     def __init__(self,
                  rapid_api_service: RapidApiService,

@@ -20,8 +20,8 @@ router = APIRouter()
 
 @router.post("/players/topscorers/{season}/{league_id}", 
             name="topscorers:sync",
-            summary = "Synchornize top scorers data",
-            description = "Retrive top scorers data from API and updates database",
+            summary = "Synchornize top scorering players data",
+            description = "Retrive top scorers players data from API and updates database",
             status_code=status.HTTP_200_OK)
 @inject
 async def sync_standings(params: CommonsPathDependency,
@@ -35,8 +35,8 @@ async def sync_standings(params: CommonsPathDependency,
 
 @router.post("/players/topassists/{season}/{league_id}", 
             name="topassists:sync",
-            summary = "Synchornize top assists data",
-            description = "Retrive top assists data from API and updates database",
+            summary = "Synchornize top assisting players data",
+            description = "Retrive top assisting players data from API and updates database",
             status_code=status.HTTP_200_OK)
 @inject
 async def sync_standings(params: CommonsPathDependency,
@@ -50,7 +50,7 @@ async def sync_standings(params: CommonsPathDependency,
 
 @router.post("/players/topredcards/{season}/{league_id}", 
             name="topreadcards:sync",
-            summary = "Synchornize top red carded players",
+            summary = "Synchornize top red carded players data",
             description = "Retrive top red carded players data from API and updates database",
             status_code=status.HTTP_200_OK)
 @inject
@@ -65,7 +65,7 @@ async def sync_standings(params: CommonsPathDependency,
 
 @router.post("/players/topyellowcards/{season}/{league_id}", 
             name="topyellowcards:sync",
-            summary = "Synchornize top yellow carded players",
+            summary = "Synchornize top yellow carded players data",
             description = "Retrive top yellow carded players data from API and updates database",
             status_code=status.HTTP_200_OK)
 @inject

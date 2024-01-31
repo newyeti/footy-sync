@@ -2,6 +2,7 @@ from typing import Any
 from loguru import logger
 from opentelemetry import trace
 from automapper import mapper
+from abc import ABC
 from  motor.motor_asyncio import AsyncIOMotorCursor
 from app.services.base_service import BaseService
 from app.models.schema.top_statistics import TopStatisticsResponse
@@ -9,7 +10,7 @@ from app.models.domain.top_statistics import Player
 from app.api.dependencies.rapid_api import RapidApiService
 from app.db.repositories.mongo.player_statistics_repository import PlayerStatisticsRepository
  
-class TopPlayerService(BaseService):
+class TopPlayerService(BaseService, ABC):
     
     def __init__(self,
                  rapid_api_service: RapidApiService,
