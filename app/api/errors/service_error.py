@@ -6,7 +6,7 @@ from fastapi.encoders import jsonable_encoder
 
         
 class ServiceException(Exception):
-    def __init__(self, name: str, api_url: str = "", message: Any = ""):
+    def __init__(self, name: str, api_url: str|None = None, message: Any|None = None):
         self.name = name
         self.api_url = api_url
         self.message = message

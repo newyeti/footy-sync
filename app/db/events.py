@@ -3,6 +3,7 @@ import os
 from loguru import logger
 from app.db.clients.mongo import MongoClient
 from app.db.clients.bigquery import BigQueryClient
+from app.db.clients.kafka import KafkaClient
 from app.db.errors import DBConnectionError
 from app.api.dependencies.cache import CacheService
 
@@ -16,7 +17,6 @@ async def test_mongodb_connection(mongo_db: MongoClient):
     except Exception as e:
         raise DBConnectionError(e)
 
-
 async def stop_mongodb(mongo_db: MongoClient):
     logger.info("Closing connection to MongoDB")
     try:
@@ -27,7 +27,6 @@ async def stop_mongodb(mongo_db: MongoClient):
     except Exception as e:
         raise DBConnectionError(e)
     
-
 async def test_cache_service(cache_service: CacheService):
     logger.info("Connecting to Cache Provider")
     try:
@@ -39,14 +38,29 @@ async def test_cache_service(cache_service: CacheService):
     except Exception as e:
         raise DBConnectionError(e)
 
-
 async def test_bigquery_connection(bigquery_client: BigQueryClient):
     logger.info("Connecting to Bigquery")
     try:
         if bigquery_client.isconnected():
-            logger.info("Connected to BigQuery")
+            logger.info(f"Connected to BigQuery - {os.getenv('APP_ENV', 'DEV').upper()} environment!")
         else:
             raise DBConnectionError(
                 "Connection could not be established with BigQuery")
     except Exception as e:
         raise DBConnectionError(e)
+
+async def test_kafka_connection(kafka_client: KafkaClient):
+    logger.info("Connecting to Kafka")
+    try:
+        if await kafka_client.is_connected():
+            logger.info(f"Connected to Kafka - {os.getenv('APP_ENV', 'DEV').upper()} environment!")
+        else:
+            raise DBConnectionError(
+                "Connection could not be established with Kafka")
+    except Exception as e:
+        raise DBConnectionError(e)
+
+async def stop_kafka(kafka_client: KafkaClient):
+    logger.info("Closing connection to Kafka")
+    await kafka_client.producer.stop()
+    logger.info("Kafka connection closed")

@@ -38,6 +38,9 @@ class KafkaSettings(BaseSettings):
     bootstrap_servers: str
     username: str
     password: str
+    sasl_mechanism: str = "SCRAM-SHA-256"
+    security_protocol: str = "SASL_SSL"
+    client_id: str = "footy-sync"
     
     class Config:
         env_prefix = "KAFKA_"
