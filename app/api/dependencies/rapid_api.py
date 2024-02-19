@@ -83,8 +83,7 @@ class RapidApiService(ApiService):
 
     async def fetch_from_api(self,
                              endpoint: str,
-                             season: int, 
-                             league_id: int) -> HttpResponse:
+                             params: dict) -> HttpResponse:
         cache_key = self.cache_service.get_key(key=self.settings.cache_key,
                                                 suffix=datetime.now().date())
         api_calls = await self.cache_service.get(cache_key)
@@ -97,11 +96,6 @@ class RapidApiService(ApiService):
  
         url = f"https://{self.settings.api_hostname}{endpoint}"
         headers = get_request_header(settings=self.settings)
-        params = {
-            "season": season,
-            "league": league_id
-        }
-
         logger.debug(f"calling endpoint={url}")
 
         async with aiohttp.ClientSession() as session:

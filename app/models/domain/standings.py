@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
-from datetime import datetime
 from typing import Optional
+from app.models.common import current_date_str
 
 class Goals(BaseModel):
     goals_for: int
@@ -21,15 +21,16 @@ class Team(BaseModel):
 class TeamStanding(BaseModel):
     rank: int
     team: Team
-    points: int
-    goals_diff: int
+    points: Optional[int] = Field(default=0)
+    goals_diff: Optional[int] = Field(default=0)
     group: str
-    form: str
-    status: str
-    description: str
-    all: Stat
-    home: Stat
-    away: Stat
+    form: Optional[str | None] = Field(default=None)
+    status: Optional[str | None] = Field(default=None)
+    description: Optional[str | None] = Field(default=None)
+    all: Optional[Stat | None ] = Field(default=None)
+    home: Optional[Stat | None ] = Field(default=None)
+    away: Optional[Stat | None ] = Field(default=None)
+    last_updated: Optional[str | None] = Field(default=current_date_str())
 
 class Standings(BaseModel):
     season: int
@@ -39,5 +40,4 @@ class Standings(BaseModel):
     logo: str
     flag: str
     standings: list[TeamStanding]
-    update: datetime
     

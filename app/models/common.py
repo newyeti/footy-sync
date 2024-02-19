@@ -5,7 +5,7 @@ from typing import Optional, Any
 from pydantic import BaseModel, Field, validator
 
 def current_date_str():
-    datetime_obj = datetime.fromtimestamp(time.time())
+    datetime_obj = datetime.datetime.fromtimestamp(time.time())
     formatted_date = datetime_obj.strftime('%Y-%m-%dT%H:%M:%S+00:00')
     return formatted_date
 
@@ -34,3 +34,16 @@ class RapidApiResponse(BaseModel):
     errors: Optional[Any]
     results: int
     paging: Paging
+
+class Team(BaseModel):
+    id : int
+    name: str
+    logo: Optional[str] = Field(default=None)
+    
+class League(BaseModel):
+    id: int
+    name: str
+    country: str
+    logo: str
+    flag: str
+    season: int

@@ -18,6 +18,15 @@ class RapidApiSetting(BaseSettings):
     api_keys: tuple
     api_hostname: str = "api-football-v1.p.rapidapi.com"
     teams_endpoint: str = "/v3/teams"
+    fixtures_endpoint: str = "/v3/fixtures"
+    fixtures_lineups_endpoint: str = "/v3/fixtures/lineups"
+    fixtures_events_endpoint: str = "/v3/fixtures/events"
+    fixtures_player_stat_endpoint: str = "/v3/fixtures/players"
+    standings_endpoint: str = "/v3/standings"
+    top_scorers_endpoint: str = "/v3/players/topscorers"
+    top_assists_endpoint: str = "/v3/players/topassists"
+    top_red_cards_endpoint: str = "/v3/players/topredcards"
+    top_yellow_cards_endpoint: str = "/v3/players/topyellowcards"
     daily_limit: int = 100
     cache_key: str = "FS::DAILY_RAPID_API_CALLS"
     cache_key_expiry_in_days: int = 7

@@ -23,7 +23,12 @@ from app.api.dependencies.middleware import add_process_time_header, PrometheusM
 from app.api.dependencies.container import Container
 from app.api.dependencies.cache import CacheService
 from app.db.clients.mongo import MongoClient
-from app.db.events import test_mongodb_connection, stop_mongodb, test_cache_service, test_bigquery_connection
+from app.db.clients.kafka import KafkaClient
+from app.db.events import (
+    test_mongodb_connection, 
+    stop_mongodb, 
+    test_cache_service
+)
 from app.db.clients.bigquery import BigQueryClient
 from app.api.routes.api import router as api_router
 from app.api.errors.validation_error import http422_error_handler
@@ -37,7 +42,10 @@ ROOT_CONTEXT = os.environ.get("ROOT_CONTEXT", "")
 container_modules = [
         __name__, 
         "app.api.routes.teams",
+        "app.api.routes.fixtures",
         "app.core.events",
+        "app.api.routes.standings",
+        "app.api.routes.top_statistics",
     ]
 
 
@@ -48,6 +56,7 @@ def get_container() -> Container:
     container.config.bigquery_settings.from_value(
         get_app_settings().infra.bigquery)
     container.config.rapid_api_settings.from_value(get_app_settings().rapid_api)
+    container.config.kafka_settings.from_value(get_app_settings().infra.kafka)
     container.wire(modules=container_modules)
     return container
 
@@ -57,16 +66,20 @@ async def startup(mongo_db: MongoClient = Depends(Provide[Container.mongo_db]),
                   cache_service: CacheService = Depends(
                       Provide[Container.cache_service]),
                   bigquery_client: BigQueryClient = Depends(
-                      Provide[Container.bigquery])
+                      Provide[Container.bigquery]),
+                  kafka_client: KafkaClient = Depends(Provide[Container.kafka_client])
                   ):
     await test_mongodb_connection(mongo_db)
-    await test_bigquery_connection(bigquery_client)
     await test_cache_service(cache_service)
+    # await test_bigquery_connection(bigquery_client)
+    # await test_kafka_connection(kafka_client)
 
 
 @inject
-async def shutdown(mongo_db: MongoClient = Depends(Provide[Container.mongo_db])):
+async def shutdown(mongo_db: MongoClient = Depends(Provide[Container.mongo_db]),
+                   kafka_client: KafkaClient = Depends(Provide[Container.kafka_client])):
     await stop_mongodb(mongo_db)
+    # await stop_kafka(kafka_client=kafka_client)
 
 
 @asynccontextmanager

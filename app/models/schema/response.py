@@ -19,9 +19,11 @@ class HttpResponse:
 class ApiResponse(BaseModel):
     season: int
     league_id: int
+    fixture_id: Optional[int | None] = None
     service: str
     status: ApiResponseStatus
     message: Optional[str | None] = None
+    date: Optional[str|None] = None
 
     model_config = {
         "json_schema_extra": {
@@ -29,9 +31,10 @@ class ApiResponse(BaseModel):
                 {
                     "season": 2023,
                     "league_id": 39,
-                    "service": "teams",
+                    "service": "service_name",
                     "status": "success",
-                    "message": "Data sychnorized successfully."
+                    "message": "Data sychnorized successfully.",
+                    "date": "2024-01-01T14:10:26.113Z"
                 }
             ]
         }
