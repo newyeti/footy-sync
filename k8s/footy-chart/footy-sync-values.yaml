@@ -1,10 +1,10 @@
 webapp:
-  name: footy-sync
+  name: footy-sync-service
   lbtype: internal
-  selectorLabels: footy-sync
+  selectorLabels: footy-sync-service
 
 image: 
-  repository: iad.ocir.io/id2dt013po6d/newyeti/footy-sync
+  repository: iad.ocir.io/id2dt013po6d/newyeti/footy-sync-service
   tag: latest-amd
 
 service: 
