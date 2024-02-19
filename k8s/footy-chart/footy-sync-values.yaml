@@ -4,7 +4,7 @@ webapp:
   selectorLabels: footy-sync-service
 
 image: 
-  repository: iad.ocir.io/id2dt013po6d/newyeti/footy-sync-service
+  repository: iad.ocir.io/id2dt013po6d/footy-sync-service
   tag: latest-amd
 
 service: 
