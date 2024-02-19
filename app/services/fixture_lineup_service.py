@@ -38,7 +38,7 @@ class FixtureLineupService(BaseService):
         return fixture_lineup_obj
     
     def convert_to_domain(self, schema: FixtureLineUpResponse, season: int, league_id: int) -> list[FixtureLineup]:
-        logger.debug("Converting Fixture schema to domain model")
+        logger.debug("Converting Fixture Lineup schema to domain model")
         
         fixture_lineups : list[FixtureLineup] = []
         for lineup in schema.response:
@@ -88,7 +88,7 @@ class FixtureLineupService(BaseService):
         if fixture is None:
             logger.error(f"Fixture for {fixture_filter} is not available.")
         else:
-            logger.info("Saving Fixture linue updomain models in mongo database")
+            logger.info("Saving Fixture linue up domain models in mongo database")
             for lineup in lineups:
                 lineup.event_date = fixture.event_date
             

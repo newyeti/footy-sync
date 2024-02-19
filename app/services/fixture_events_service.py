@@ -21,7 +21,7 @@ class FixtureEventsService(BaseService):
         self.fixture_repository = fixture_repository
         
     async def call_api(self, season: int, league_id: int, fixture_id: int = None) -> Any:
-        logger.info(f"Fixture:fetch_from_api - season={season}, league_id={league_id}, fixture_id={fixture_id}")
+        logger.info(f"Fixture Events:fetch_from_api - season={season}, league_id={league_id}, fixture_id={fixture_id}")
         api_endpoint = self._rapid_api_service.settings.fixtures_events_endpoint
         params = {
             "fixture": fixture_id,
@@ -65,7 +65,7 @@ class FixtureEventsService(BaseService):
         return fixture_events
         
     async def save_in_db(self, events: list[FixtureEvent], season: int = None, league_id: int = None) -> None:
-        logger.debug("Saving Fixture domain models in database")
+        logger.debug("Saving Fixture Events domain models in database")
         with self.tracer.start_as_current_span("mongo.fixture_events.save"):
             await self.__save_in_mongo(events=events)
     
@@ -90,7 +90,7 @@ class FixtureEventsService(BaseService):
             for event in events:
                 event.event_date = fixture.event_date
         
-            logger.debug("Saving Fixture domain models in mongo database")
+            logger.debug("Saving Fixture Events domain models in mongo database")
             await self.fixture_events_repository.update_bulk(events=events)
     
         

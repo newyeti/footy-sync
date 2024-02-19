@@ -8,6 +8,7 @@ from app.services.fixtures_service import FixtureService
 from app.services.fixture_lineup_service import FixtureLineupService
 from app.services.fixture_events_service import FixtureEventsService
 from app.services.fixture_player_stats_service import FixturePlayerStatsService
+from app.services.fixture_template_service import FixtureTemplateService
 from app.services.standings_service import StandingsService
 from app.services.top_players_service import (
     TopScorersService,
@@ -123,6 +124,15 @@ class Container(containers.DeclarativeContainer):
         FixturePlayerStatsService,
         rapid_api_service=rapid_api_service,
         fixture_player_stats_repository=fixture_player_stats_repository,
+        fixture_repository=fixture_repository
+    )
+    
+    fixture_template_service = providers.Factory(
+        FixtureTemplateService,
+        fixture_service=fixture_service,
+        fixture_lineup_service=fixture_lineup_service,
+        fixture_events_service=fixture_events_service,
+        fixture_player_stats_service=fixture_player_stats_service,
         fixture_repository=fixture_repository
     )
     

@@ -1,4 +1,5 @@
 from loguru import logger
+from motor.motor_asyncio import AsyncIOMotorCursor
 
 from app.models.domain.fixture import Fixture
 from app.db.clients.mongo import MongoClient
@@ -49,3 +50,25 @@ class FixtureRepository(BaseRepository):
         await self.updateDocument(collection=self.collection, 
                             filter_strs=["season", "league_id", "fixture_id"],
                             datalist=fixtures)
+    
+    def find(self, filter: dict, projection: dict = None) -> AsyncIOMotorCursor:
+        """This methods find a document asynchronously
+
+        Args:
+            filter (dict): Filter
+
+        Returns:
+            Team: List of Player Documents
+        """
+        logger.debug(f"finding document for {filter}")
+
+        if projection:
+            projection["_id"] = False
+        else:
+            projection = {
+                "_id": False  # Do not retrun id
+            }
+
+        player_documents = self.collection.find(filter=filter, projection=projection)
+        return player_documents
+    

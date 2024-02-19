@@ -150,7 +150,7 @@ class TopPlayerService(BaseService, ABC):
             return player_dict
 
         with self.tracer.start_as_current_span(f"mongo.{self.category}.find"):
-            players_cursor: AsyncIOMotorCursor = self.player_statistics_repository.find({
+            players_cursor: AsyncIOMotorCursor = self.player_statistics_repository.find({ # type: ignore
                 "season": season,
                 "league_id": league_id,
                 "category": self.category

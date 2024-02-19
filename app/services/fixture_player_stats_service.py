@@ -22,12 +22,12 @@ class FixturePlayerStatsService(BaseService):
         self.fixture_repository = fixture_repository
         
     async def call_api(self, season: int, league_id: int, fixture_id: int = None) -> Any:
-        logger.info(f"Fixture:fetch_from_api - season={season}, league_id={league_id}")
+        logger.info(f"Fixture Player Stat:fetch_from_api - season={season}, league_id={league_id}")
         api_endpoint = self._rapid_api_service.settings.fixtures_player_stat_endpoint
         params = {
             "fixture": fixture_id
         }
-        with self.tracer.start_as_current_span("fixture_events.fetch.from.api"):
+        with self.tracer.start_as_current_span("fixture_player_stats.fetch.from.api"):
             api_response = await self._rapid_api_service.fetch_from_api(endpoint=api_endpoint, 
                                                 params=params)
         
@@ -37,7 +37,7 @@ class FixturePlayerStatsService(BaseService):
         return fixture_player_stats_obj
     
     def convert_to_domain(self, schema: FixtureStatResponse, season: int, league_id: int) -> list[FixturePlayerStatistics]:
-        logger.debug("Converting Fixture schema to domain model")
+        logger.debug("Converting Fixture Player Statistics schema to domain model")
         fixture_statistics: list[FixturePlayerStatistics] = []
         
         for stat in schema.response:
@@ -107,13 +107,13 @@ class FixturePlayerStatsService(BaseService):
         return fixture_statistics
         
     async def save_in_db(self, fixture_player_stats: list[FixturePlayerStatistics], season: int, league_id: int) -> None:
-        logger.debug("Saving Fixture domain models in database")
+        logger.debug("Saving Fixture Player Statistics domain models in database")
         with self.tracer.start_as_current_span("mongo.fixture_player_stats.save"):
             await self.__save_in_mongo(fixture_player_stats=fixture_player_stats)
     
     async def __save_in_mongo(self, fixture_player_stats: list[FixturePlayerStatistics]) -> None:
         if len(fixture_player_stats) == 0:
-            logger.error("Fixture lineup is not available")
+            logger.error("Fixture player statistics is not available")
             return
         
         fixture_stat = fixture_player_stats[0]
