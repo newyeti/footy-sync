@@ -1,39 +1,40 @@
 apiVersion: batch/v1
-kind: Job
+kind: CronJob
 metadata:
   name: footy-standings-curl-job
 spec:
-  template:
+  schedule: "0 * * * *"
+  timeZone: "Etc/UTC"
+  jobTemplate:
     spec:
-      containers:
-      - name: footy-standings-curl-job
-        imagePullPolicy: IfNotPresent
-        image: curlimages/curl:8.6.0
-        env:
-        - name: WEBHOOK
-          value: <your-slack-web-hook>
-        - name: OAUTH_TOKEN_ENDPOINT
-          value: <yout-oauth-token-endpoint>
-        - name: BASIC_CLIENT_CREDENTIALS
-          value: <{base64}clientId:clientSecret}>
-        - name: JOB_ENDPOINT
-          value: https://footy.newyeti.us.to/footy/standings/2023/39
-        - name: SUCCESS_MESSAGE
-          value: "success"
-        - name: FAIL_MESSAGE
-          value: "failed"
-        - name: NO_AUTH
-          value: "true"
-        command: ["/scripts/kubernetes_curl_job.sh"]
-        volumeMounts:
-        - name: kubernetes-job-volume
-          mountPath: /scripts
-      restartPolicy: OnFailure
-
-      volumes:
-      - name: kubernetes-job-volume
-        configMap:
-          name: kubernetes-curl-job-script
-          defaultMode: 0744      
-  backoffLimit: 4
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: footy-standings-curl-job
+            imagePullPolicy: IfNotPresent
+            image: curlimages/curl:8.6.0
+            env:
+            - name: OAUTH_TOKEN_ENDPOINT
+              value: <yout-oauth-token-endpoint>
+            - name: BASIC_CLIENT_CREDENTIALS
+              value: <{base64}clientId:clientSecret}>
+            - name: JOB_ENDPOINT
+              value: https://footy.newyeti.us.to/footy/standings/2023/39
+            - name: SUCCESS_MESSAGE
+              value: "success"
+            - name: FAIL_MESSAGE
+              value: "failed"
+            - name: NO_AUTH
+              value: "true"
+            command: ["/scripts/kubernetes_curl_job.sh"]
+            volumeMounts:
+            - name: kubernetes-job-volume
+              mountPath: /scripts
+          volumes:
+          - name: kubernetes-job-volume
+            configMap:
+              name: kubernetes-curl-job-script
+              defaultMode: 0744      
+      backoffLimit: 4
   

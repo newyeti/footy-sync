@@ -82,6 +82,29 @@ helm-ingress-nginx:
 helm-prometheus:
 	helm upgrade --install prometheus prometheus-community/prometheus --set alertmanager.enabled=false --namespace footy -f k8s/footy-chart/prometheus-values.yaml
 
+deploy-job-script-configmap:
+	kubectl create configmap kubernetes-curl-job-script \
+		--from-file=./scripts/kubernetes_curl_job.sh \
+		-o yaml --dry-run=client | kubectl apply -f -
+
+deploy-jobs:
+	./scripts/kubernetes_curl_job_deploy.sh
+
+kubernetes-dashboard:
+	kubectl apply -f k8s/dashboard/dashboard-adminuser.yaml
+	kubectl apply -f k8s/dashboard/cluster-rolebinding.yaml
+	kubectl apply -f k8s/dashboard/dashboard-secret.yaml
+
+kubernetes-dashboard-token:
+	kubectl -n kubernetes-dashboard create token admin-user
+
+kubernetes-dashboard-secret:
+	kubectl get secret admin-user -n kubernetes-dashboard -o jsonpath={".data.token"} | base64 -d
+
+kubernetes-dashboard-start:
+	kubectl proxy
+#http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/.
+
 create-secret:
 	kubectl create secret tls footy-newyeti-tls-secret \
 --key ./credentials/key.pem \
