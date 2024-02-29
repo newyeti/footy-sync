@@ -1,6 +1,6 @@
 #!/bin/sh
 
-kubectl delete job footy-standings-curl-job
+kubectl -n footy delete job footy-standings-curl-job
 
 # Apply Job
-kubectl apply -f ./k8s/footy-chart/jobs/footy-standings-curl-jobs.yaml
+kubectl -n footy apply -f ./k8s/footy-chart/jobs/footy-daily-curl-jobs.yaml
