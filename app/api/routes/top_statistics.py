@@ -1,5 +1,5 @@
 from typing import Any
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Security
 from fastapi.encoders import jsonable_encoder
 from loguru import logger
 from dependency_injector.wiring import inject
@@ -15,8 +15,10 @@ from app.services.top_players_service import (
     TopYellowCardsService,
 )
 from dependency_injector.wiring import inject, Provide
+from app.core.auth.utils import VerifyToken
 
 router = APIRouter()
+token_verifier = VerifyToken()
 
 @router.post("/players/topscorers/{season}/{league_id}", 
             name="topscorers:sync",
@@ -27,7 +29,8 @@ router = APIRouter()
             response_model_exclude_defaults=True)
 @inject
 async def sync_standings(params: CommonsPathDependency,
-                     top_scorers_service: TopScorersService = Depends(Provide[Container.top_scorers_service])) -> Any:
+                     top_scorers_service: TopScorersService = Depends(Provide[Container.top_scorers_service]),
+                     auth_result: str = Security(token_verifier.verify)) -> Any:
     await top_scorers_service.execute(season=params.season, league_id=params.league_id)
     service_response = ApiResponse(season=params.season, 
                             league_id=params.league_id,
@@ -44,7 +47,8 @@ async def sync_standings(params: CommonsPathDependency,
             response_model_exclude_defaults=True)
 @inject
 async def sync_standings(params: CommonsPathDependency,
-                     top_assists_service: TopAssistsService = Depends(Provide[Container.top_assists_service])) -> Any:
+                     top_assists_service: TopAssistsService = Depends(Provide[Container.top_assists_service]),
+                     auth_result: str = Security(token_verifier.verify)) -> Any:
     await top_assists_service.execute(season=params.season, league_id=params.league_id)
     service_response = ApiResponse(season=params.season, 
                             league_id=params.league_id,
@@ -61,7 +65,8 @@ async def sync_standings(params: CommonsPathDependency,
             response_model_exclude_defaults=True)
 @inject
 async def sync_standings(params: CommonsPathDependency,
-                     top_redcards_service: TopRedCardsService = Depends(Provide[Container.top_redcards_service])) -> Any:
+                     top_redcards_service: TopRedCardsService = Depends(Provide[Container.top_redcards_service]),
+                     auth_result: str = Security(token_verifier.verify)) -> Any:
     await top_redcards_service.execute(season=params.season, league_id=params.league_id)
     service_response = ApiResponse(season=params.season, 
                             league_id=params.league_id,
@@ -78,7 +83,8 @@ async def sync_standings(params: CommonsPathDependency,
             response_model_exclude_defaults=True)
 @inject
 async def sync_standings(params: CommonsPathDependency,
-                     top_yellowcards_service: TopYellowCardsService = Depends(Provide[Container.top_yellowcards_service])) -> Any:
+                     top_yellowcards_service: TopYellowCardsService = Depends(Provide[Container.top_yellowcards_service]),
+                     auth_result: str = Security(token_verifier.verify)) -> Any:
     await top_yellowcards_service.execute(season=params.season, league_id=params.league_id)
     service_response = ApiResponse(season=params.season, 
                             league_id=params.league_id,
