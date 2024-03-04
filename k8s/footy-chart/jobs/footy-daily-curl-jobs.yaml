@@ -4,11 +4,11 @@ metadata:
   namespace: footy
   name: footy-standings-curl-job
 spec:
-  schedule: "0 * * * *"
+  schedule: "0/2 * * * *"
   timeZone: "Etc/UTC"
   jobTemplate:
     spec:
-      ttlSecondsAfterFinished: 400
+      ttlSecondsAfterFinished: 200
       template:
         spec:
           restartPolicy: OnFailure

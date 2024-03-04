@@ -34,7 +34,7 @@ class FixtureTemplateService:
         """Update the fixture, lineups , events and statistics
         """
         
-        logger.debug(f"finding fixtures between {fromDate} and {toDate}")
+        logger.info(f"finding fixtures between {fromDate} and {toDate}")
         
         with self.tracer.start_as_current_span(f"update.fixture.by.date"):
             cursor: AsyncIOMotorCursor = self.fr.find({ # type: ignore

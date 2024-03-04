@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export AUTH0=$(echo "ewogICJkb21haW4iOiAiZGV2LXRvZG8yMC5hdXRoMC5jb20iLAogICJhcGlfYXVkaWVuY2UiOiAiaHR0cHM6Ly9mb290eS5uZXd5ZXRpLmNvbSIsCiAgImlzc3VlciI6ICJodHRwczovL2Rldi10b2RvMjAuYXV0aDAuY29tLyIsCiAgImFsZ29yaXRobSI6ICJSUzI1NiIKfQo=" | base64 --decode)
-
 if [[ -z "${INFRA}" ]]; then
   echo "Environment variable 'INFRA' is not set."
 else 
@@ -19,6 +17,16 @@ else
   result=$?
   if [[ $result == 0 ]]; then
     export RAPID_API=$api_keys
+  fi
+fi
+
+if [[ -z "${AUTH0}" ]]; then
+  echo "Environment variable 'AUTH0' is not set."
+else 
+  auth0=$(echo $AUTH0 | base64 --decode)
+  result=$?
+  if [[ $result == 0 ]]; then
+    export AUTH0=$auth0
   fi
 fi
 
