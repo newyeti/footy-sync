@@ -1,7 +1,7 @@
 from typing import Any
 import datetime
 from dateutil import parser
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Security
 from fastapi.encoders import jsonable_encoder
 from loguru import logger
 from dependency_injector.wiring import inject
@@ -17,8 +17,10 @@ from app.services.fixture_player_stats_service import FixturePlayerStatsService
 from app.services.fixture_template_service import FixtureTemplateService
 from dependency_injector.wiring import inject, Provide
 from app.api.errors.service_error import ServiceException
+from app.core.auth.utils import VerifyToken
 
 router = APIRouter()
+token_verifier = VerifyToken()
 
 @router.post("/fixtures/{season}/{league_id}", 
             name="fixtures:sync_fixtures",
@@ -29,6 +31,7 @@ router = APIRouter()
             response_model_exclude_defaults=True)
 @inject
 async def sync_fixtures(params: CommonsPathDependency,
+                        auth_result: str = Security(token_verifier.verify),
                         fixture_id: int | None = None,
                         fixture_service: FixtureService = Depends(Provide[Container.fixture_service])) -> Any:
     await fixture_service.execute(season=params.season, league_id=params.league_id, fixture_id=fixture_id)
@@ -47,8 +50,10 @@ async def sync_fixtures(params: CommonsPathDependency,
             response_model=ApiResponse,
             response_model_exclude_defaults=True)
 @inject
-async def sync_fixuture_lineup(params: CommonsPathDependency, fixture_id: int,
-                               fixture_lineup_service: FixtureLineupService = Depends(Provide[Container.fixture_lineup_service])
+async def sync_fixuture_lineup(params: CommonsPathDependency, 
+                               fixture_id: int,
+                               fixture_lineup_service: FixtureLineupService = Depends(Provide[Container.fixture_lineup_service]),
+                               auth_result: str = Security(token_verifier.verify)
                                ) -> Any:
     await fixture_lineup_service.execute(season=params.season, 
                                           league_id=params.league_id, 
@@ -69,7 +74,8 @@ async def sync_fixuture_lineup(params: CommonsPathDependency, fixture_id: int,
             response_model_exclude_defaults=True)
 @inject
 async def sync_fixuture_events(params: CommonsPathDependency, fixture_id: int,
-                               fixture_events_service: FixtureEventsService = Depends(Provide[Container.fixture_events_service])
+                               fixture_events_service: FixtureEventsService = Depends(Provide[Container.fixture_events_service]),
+                               auth_result: str = Security(token_verifier.verify)
                                ) -> Any:
     await fixture_events_service.execute(season=params.season, 
                                           league_id=params.league_id, 
@@ -90,7 +96,8 @@ async def sync_fixuture_events(params: CommonsPathDependency, fixture_id: int,
             response_model_exclude_defaults=True)
 @inject
 async def sync_fixuture_player_stats(params: CommonsPathDependency, fixture_id: int,
-                               fixture_player_stats_service: FixturePlayerStatsService = Depends(Provide[Container.fixture_player_stats_service])
+                               fixture_player_stats_service: FixturePlayerStatsService = Depends(Provide[Container.fixture_player_stats_service]),
+                               auth_result: str = Security(token_verifier.verify)
                                ) -> Any:
     await fixture_player_stats_service.execute(season=params.season, 
                                           league_id=params.league_id, 
@@ -113,7 +120,8 @@ async def sync_fixuture_player_stats(params: CommonsPathDependency, fixture_id: 
 async def sync_fixtures_by_date(params: CommonsPathDependency, 
                                 from_date: str | None = None,
                                 to_date: str | None = None,
-                                fixture_template_service: FixtureTemplateService = Depends(Provide[Container.fixture_template_service]) ) -> Any:
+                                fixture_template_service: FixtureTemplateService = Depends(Provide[Container.fixture_template_service]),
+                                auth_result: str = Security(token_verifier.verify)) -> Any:
     date_format = "%Y-%m-%d"
     
     def validate_date(date: str) -> datetime.date:
