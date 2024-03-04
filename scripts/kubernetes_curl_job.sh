@@ -35,30 +35,18 @@ notifyFail() {
 
 callApi() {
     endpoint=$1
+    access_token=$2
 
-    if [[ ! -z "${no_auth}" ]]; then
+    if [ ! -z "${no_auth}" ]; then
         status_code=$(curl -k -X POST --write-out %{http_code} --silent --output /dev/null \
             "$endpoint")
     else 
-        # Authenticate with your Auth API using OAuth2 Client credentials flow and get an ACCESS TOKEN
-        access_token=$(curl -X 'POST' \
-            --url "https://$auth_domain/oauth/token" \
-            --header "content-type: application/x-www-form-urlencoded" \
-            --data grant_type=client_credentials \
-            --data client_id=$client_id \
-            --data client_secret=$client_secret \
-            --data audience=$audience \
-            | jq -r .access_token)
-
-        echo "access token: $access_token , endpoint:$endpoint"
-
         # Execute API request using previously requested Access Token
         status_code=$(curl -k -H "Authorization: Bearer $access_token" \
             -X POST --write-out %{http_code} --silent --output /dev/null \
             "$endpoint")
 
         echo "Status code:${status_code}"
-
     fi
 
     if [ "${status_code}" -ne 200 ]; then
@@ -67,16 +55,12 @@ callApi() {
         else
             echo "${FAIL_MESSAGE}"
         fi
-
-    #   notifyFail
     else
         if [ -z ${SUCCESS_MESSAGE} ]; then
             echo "Successfully completed request ${endpoint}"
         else
             echo "$SUCCESS_MESSAGE"
         fi
-
-    #   notifySuccess
     fi
 }
 
@@ -84,14 +68,33 @@ execute() {
     season=$1
     league=$2
     endpoint=$3
+    access_token=$4
+
     url=$(echo $endpoint | sed -e "s/{season}/${season}/" -e "s/{league}/${league}/")
-    callApi $url
+    callApi $url $access_token
 }
 
 echo "#############################"
 echo "Staring daily job"
 echo "#############################"
 
+
+# Authenticate with your Auth API using OAuth2 Client credentials flow and get an ACCESS TOKEN
+access_token=$(curl -X 'POST' \
+    --url "https://$auth_domain/oauth/token" \
+    --header "content-type: application/x-www-form-urlencoded" \
+    --data grant_type=client_credentials \
+    --data client_id=$client_id \
+    --data client_secret=$client_secret \
+    --data audience=$audience \
+    | jq -r .access_token)
+
+echo "access token: $access_token , endpoint:$endpoint"
+
+if [ -z ${access_token} ]; then
+    echo "Unable to get access token."
+    exit 1
+fi
 
 # Save the current value of IFS
 OLD_IFS=$IFS
@@ -101,13 +104,12 @@ IFS=','
 
 # Loop through each value
 for league in $leagues; do
-    echo "Leauge ID: $league"
-    execute $season $league $standings_endpoint
-    execute $season $league $fixture_endpoint
-    execute $season $league $topscorers_endpoint
-    execute $season $league $topassists_endpoint
-    execute $season $league $topredcards_endpoint
-    execute $season $league $topyellowcards_endpoint
+    execute $season $league $standings_endpoint $access_token
+    execute $season $league "https://footy.newyeti.us.to/footy/fixtures/stat/{season}/{league}?from_date=2024-03-03" $access_token
+    # execute $season $league $topscorers_endpoint $access_token
+    # execute $season $league $topassists_endpoint $access_token
+    # execute $season $league $topredcards_endpoint $access_token
+    # execute $season $league $topyellowcards_endpoint $access_token
 done
 
 # Restore the value of IFS
