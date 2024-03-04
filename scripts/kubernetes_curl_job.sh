@@ -105,11 +105,11 @@ IFS=','
 # Loop through each value
 for league in $leagues; do
     execute $season $league $standings_endpoint $access_token
-    execute $season $league "https://footy.newyeti.us.to/footy/fixtures/stat/{season}/{league}?from_date=2024-03-03" $access_token
-    # execute $season $league $topscorers_endpoint $access_token
-    # execute $season $league $topassists_endpoint $access_token
-    # execute $season $league $topredcards_endpoint $access_token
-    # execute $season $league $topyellowcards_endpoint $access_token
+    execute $season $league $fixture_endpoint $access_token
+    execute $season $league $topscorers_endpoint $access_token
+    execute $season $league $topassists_endpoint $access_token
+    execute $season $league $topredcards_endpoint $access_token
+    execute $season $league $topyellowcards_endpoint $access_token
 done
 
 # Restore the value of IFS
