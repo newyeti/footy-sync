@@ -14,7 +14,6 @@ def health() -> Any:
     return {"status": "Running"}
 
 @router.get("/metrics")
-def api_metrics() -> Any:
-    auth_result: str = Security(token_verifier.verify)
+def api_metrics(auth_result: str = Security(token_verifier.verify)) -> Any:
     return Response(generate_latest(REGISTRY), headers={"Content-Type": CONTENT_TYPE_LATEST})
 

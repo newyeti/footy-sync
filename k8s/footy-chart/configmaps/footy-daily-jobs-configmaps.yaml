@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: footy-daily-jobs
+  namespace: footy
+data:
+  SEASON: "2023"
+  LEAGUE_IDS: "39"
+  STANDINGS_ENDPOINT: https://footy.newyeti.us.to/footy/standings/{season}/{league}
+  FIXTURE_ENDPOINT: https://footy.newyeti.us.to/footy/fixtures/stat/{season}/{league}
+  TOP_SCORERS_ENDPOINT: https://footy.newyeti.us.to/footy/players/topscorers/{season}/{league}
+  TOP_ASSISTS_ENDPOINT: https://footy.newyeti.us.to/footy/players/topassists/{season}/{league}
+  TOP_RED_CARDS_ENDPOINT: https://footy.newyeti.us.to/footy/players/topredcards/{season}/{league}
+  TOP_YELLOW_CARDS_ENDPOINT: https://footy.newyeti.us.to/footy/players/topyellowcards/{season}/{league}
