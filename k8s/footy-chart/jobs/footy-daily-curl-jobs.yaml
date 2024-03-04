@@ -1,0 +1,108 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  namespace: footy
+  name: footy-standings-curl-job
+spec:
+  schedule: "0 * * * *"
+  timeZone: "Etc/UTC"
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 400
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: footy-standings-curl-job
+            imagePullPolicy: IfNotPresent
+            image: sachindramaharjan/ubuntu-curl-jq:1.1-arm
+            env:
+            - name: AUTH_DOMAIN
+              valueFrom: 
+                secretKeyRef:
+                  name: footy-secret
+                  key: AUTH_DOMAIN
+
+            - name: CLIENT_ID
+              valueFrom: 
+                secretKeyRef:
+                  name: footy-secret
+                  key: CLIENT_ID
+
+            - name: CLIENT_SECRET
+              valueFrom: 
+                secretKeyRef:
+                  name: footy-secret
+                  key: CLIENT_SECRET
+
+            - name: AUDIENCE
+              valueFrom: 
+                secretKeyRef:
+                  name: footy-secret
+                  key: AUDIENCE
+
+            - name: SEASON
+              valueFrom:
+                configMapKeyRef:
+                  name: footy-daily-jobs
+                  key: SEASON
+            
+            - name: LEAGUE_IDS
+              valueFrom:
+                configMapKeyRef:
+                  name: footy-daily-jobs
+                  key: LEAGUE_IDS
+
+            - name: STANDINGS_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: footy-daily-jobs
+                  key: STANDINGS_ENDPOINT
+
+            - name: FIXTURE_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: footy-daily-jobs
+                  key: FIXTURE_ENDPOINT
+
+            - name: TOP_SCORERS_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: footy-daily-jobs
+                  key: TOP_SCORERS_ENDPOINT
+
+            - name: TOP_ASSISTS_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: footy-daily-jobs
+                  key: TOP_ASSISTS_ENDPOINT
+
+            - name: TOP_RED_CARDS_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: footy-daily-jobs
+                  key: TOP_RED_CARDS_ENDPOINT
+
+            - name: TOP_YELLOW_CARDS_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: footy-daily-jobs
+                  key: TOP_YELLOW_CARDS_ENDPOINT
+
+            - name: SUCCESS_MESSAGE
+              value: "success"
+            - name: FAIL_MESSAGE
+              value: "failed"
+
+            command: ["/scripts/kubernetes_curl_job.sh"]
+            volumeMounts:
+            - name: kubernetes-job-volume
+              mountPath: /scripts
+
+          volumes:
+          - name: kubernetes-job-volume
+            configMap:
+              name: kubernetes-curl-job-script
+              defaultMode: 0744      
+      backoffLimit: 4
+  

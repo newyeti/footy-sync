@@ -18,7 +18,7 @@ class StandingsService(BaseService):
         self.standings_repository = standings_repository
         
     async def call_api(self, season: int, league_id: int, fixture_id: int = None) -> Any:
-        logger.info(f"Fixture:fetch_from_api - season={season}, league_id={league_id}")
+        logger.info(f"Standings:fetch_from_api - season={season}, league_id={league_id}")
         api_endpoint = self._rapid_api_service.settings.standings_endpoint
         params = {
             "season": season,
@@ -30,7 +30,7 @@ class StandingsService(BaseService):
         
         standings_obj = StandingsResponse.model_validate(api_response.response_data)
     
-        logger.debug(f"Fixture count got: {len(standings_obj.response)}")
+        logger.debug(f"standings count got: {len(standings_obj.response)}")
         
         return standings_obj
     
@@ -38,7 +38,7 @@ class StandingsService(BaseService):
         if len(schema.response) == 0:
             return []
 
-        logger.debug("Converting Fixture schema to domain model")
+        logger.debug("Converting Standings schema to domain model")
         
         league = schema.response[0].league
         team_standings: list[TeamStanding] = []
@@ -110,12 +110,12 @@ class StandingsService(BaseService):
         return [standings]
         
     async def save_in_db(self, standings: list[Standings], season: int, league_id: int) -> None:
-        logger.debug("Saving Fixture domain models in database")
+        logger.debug("Saving Standings domain models in database")
         with self.tracer.start_as_current_span("mongo.standings.save"):
             await self.__save_in_mongo(standings=standings)
     
     async def __save_in_mongo(self, standings: list[Standings]) -> None:
-        logger.debug("Saving Fixture domain models in mongo database")
+        logger.debug("Saving Standings domain models in mongo database")
         await self.standings_repository.update_bulk(standings=standings)
     
         

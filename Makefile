@@ -63,6 +63,15 @@ secret:
 
 configmap:
 	kubectl -n footy apply -f k8s/footy-chart/configmaps/footy-configmaps.yaml
+	kubectl -n footy apply -f k8s/footy-chart/configmaps/footy-daily-jobs-configmaps.yaml
+
+job-script-configmap:
+	kubectl -n footy create configmap kubernetes-curl-job-script \
+		--from-file=./scripts/kubernetes_curl_job.sh \
+		-o yaml --dry-run=client | kubectl apply -f -
+
+daily-jobs:
+	./scripts/kubernetes_curl_job_deploy.sh
 
 helm-grafana:
 	helm -n footy upgrade --install grafana grafana/grafana -f k8s/footy-chart/grafana-values.yaml
@@ -81,14 +90,6 @@ helm-ingress-nginx:
 
 helm-prometheus:
 	helm upgrade --install prometheus prometheus-community/prometheus --set alertmanager.enabled=false --namespace footy -f k8s/footy-chart/prometheus-values.yaml
-
-deploy-job-script-configmap:
-	kubectl create configmap kubernetes-curl-job-script \
-		--from-file=./scripts/kubernetes_curl_job.sh \
-		-o yaml --dry-run=client | kubectl apply -f -
-
-deploy-jobs:
-	./scripts/kubernetes_curl_job_deploy.sh
 
 kubernetes-dashboard:
 	kubectl apply -f k8s/dashboard/dashboard-adminuser.yaml

@@ -32,6 +32,7 @@ services:
       APP_ENV: dev
       INFRA: $INFRA
       RAPID_API: $RAPID_API
+      AUTH0: $AUTH0
       OTLP_GRPC_ENDPOINT: http://tempo:4317
     logging: *default-logging
 
