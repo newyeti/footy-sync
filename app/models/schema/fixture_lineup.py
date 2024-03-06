@@ -20,15 +20,15 @@ class Team(BaseModel):
     colors: Optional[TeamColor | None] = None
 
 class Coach(BaseModel):
-    id: int
-    name: str
-    photo: str
+    id: Optional[int] = None
+    name: Optional[str] = None
+    photo: Optional[str] = None
 
 class Player(BaseModel):
     id: int
     name: str
-    number: int
-    pos: str
+    number: Optional[int] = None
+    pos: Optional[str] = None
     grid: Optional[str | None] = None
 
 class Players(BaseModel):
