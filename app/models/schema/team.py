@@ -6,20 +6,20 @@ class Team(BaseModel):
     id: int
     name: str
     code: str
-    country: str
-    founded: int
-    national: bool
-    logo: str
+    country: Optional[str] = None
+    founded: Optional[int] = None
+    national: Optional[bool] = None
+    logo: Optional[str]
 
 
 class Venue(BaseModel):
     id: int
     name: str
-    address: str
-    city: str
-    capacity: int
-    surface: str
-    image: str
+    address: Optional[str] = None
+    city: Optional[str] = None
+    capacity: Optional[int] = None
+    surface: Optional[str] = None
+    image: Optional[str] =  None
 
 
 class ResponseData(BaseModel):
