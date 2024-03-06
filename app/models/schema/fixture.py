@@ -8,13 +8,13 @@ class Periods(BaseModel):
     second: Optional[int] = None
 
 class Venue(BaseModel):
-    id: int
-    name: str
-    city: str
+    id: Optional[int] = None
+    name: Optional[str] = None
+    city: Optional[str] = None
 
 class Status(BaseModel):
-    long: str
-    short: str
+    long: Optional[str] = None
+    short: Optional[str] = None
     elapsed: Optional[int] = None
     
 class Fixture(BaseModel):
@@ -31,7 +31,7 @@ class League(BaseModel):
     id: int
     name: str
     country: str
-    logo: str
+    logo: Optional[str] = None
     flag: Optional[str] = None
     season: int
     round: str
@@ -39,7 +39,7 @@ class League(BaseModel):
 class Team(BaseModel):
     id: int 
     name: str 
-    logo: str
+    logo: Optional[str] = None
     winner: Optional[bool] = None
 
 class Teams(BaseModel):
