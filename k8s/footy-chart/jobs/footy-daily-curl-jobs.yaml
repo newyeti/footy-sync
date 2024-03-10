@@ -4,7 +4,7 @@ metadata:
   namespace: footy
   name: footy-standings-curl-job
 spec:
-  schedule: "0 0 * * *"
+  schedule: "30 22 * * *"
   timeZone: "Etc/UTC"
   jobTemplate:
     spec:
