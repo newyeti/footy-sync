@@ -1,6 +1,7 @@
 from loguru import logger
 from opentelemetry import trace
 from  motor.motor_asyncio import AsyncIOMotorCursor
+import time
 
 from app.services.fixtures_service import FixtureService
 from app.services.fixture_lineup_service import FixtureLineupService
@@ -47,7 +48,9 @@ class FixtureTemplateService:
             })
             fixtures = await cursor.to_list(None) 
         
+        index: int = 0
         for f in fixtures:
+            index += 1
             fixture = Fixture.model_validate(f)
             logger.info(fixture)
             await self.fs.execute(season=season,
@@ -62,8 +65,12 @@ class FixtureTemplateService:
             await self.fpss.execute(season=season,
                             league_id=league_id,
                             fixture_id=fixture.fixture_id)
-        
-        
+            
+            # Wait to prevent Rapid API minute limit (30 calls per minute limit)
+            if index % 3 == 0 and index < len(fixtures):
+                time.sleep(30)
+            
+            
     def update_by_status(self):
         pass
     
