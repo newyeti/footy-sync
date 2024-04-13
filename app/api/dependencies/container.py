@@ -3,6 +3,7 @@ from dependency_injector import containers, providers
 from app.api.dependencies.cache import CacheService
 from app.db.clients import redis, mongo, bigquery, kafka
 from app.api.dependencies.rapid_api import RapidApiService
+from app.api.dependencies.api_key import ApiKeyService
 from app.services.team_service import TeamService
 from app.services.fixtures_service import FixtureService
 from app.services.fixture_lineup_service import FixtureLineupService
@@ -52,11 +53,18 @@ class Container(containers.DeclarativeContainer):
     kafka_client = providers.Singleton(
         kafka.KafkaClient, settings=config.kafka_settings
     )
+    
+    apikey_service = providers.Singleton(
+        ApiKeyService,
+        cache_service=cache_service,
+        settings=config.rapid_api_settings
+    )
 
     rapid_api_service = providers.Factory(
         RapidApiService,
         settings=config.rapid_api_settings,
-        cache_service=cache_service
+        cache_service=cache_service,
+        apikey_service=apikey_service
     )
     
     team_repository = providers.Factory(

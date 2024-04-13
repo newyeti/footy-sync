@@ -12,18 +12,7 @@ from app.models.schema.response import HttpResponse
 from app.services.base_service import ApiService
 from app.api.dependencies.cache import CacheService
 from app.api.errors.service_error import RapidApiException
-
-
-@lru_cache()
-def get_api_key(api_keys: tuple[str]) -> str:
-    return api_keys[0]
-
-
-def get_request_header(settings: RapidApiSetting):
-    return {
-            'X-RapidAPI-Key': get_api_key(api_keys=settings.api_keys),
-            'X-RapidAPI-Host': settings.api_hostname
-        }
+from app.api.dependencies.api_key import ApiKeyService
 
 
 async def get_request(session: aiohttp.ClientSession, url: str,
@@ -71,45 +60,43 @@ async def post_request(session: aiohttp.ClientSession,
         return {"error": f"Error posting data to {url}: {e}"}
     
 
-
 class RapidApiService(ApiService):
     
     def __init__(self, 
                  settings: RapidApiSetting, 
-                 cache_service: CacheService) -> None:
+                 cache_service: CacheService,
+                 apikey_service: ApiKeyService) -> None:
         self.settings = settings
         self.cache_service = cache_service
+        self.apikey_service = apikey_service
 
-
+    def __get_request_header(self, api_hostname: str, api_key: str):
+        return {
+                'X-RapidAPI-Key': api_key,
+                'X-RapidAPI-Host': api_hostname
+            }
+    
     async def fetch_from_api(self,
                              endpoint: str,
                              params: dict) -> HttpResponse:
-        cache_key = self.cache_service.get_key(key=self.settings.cache_key,
-                                                suffix=datetime.now().date())
-        api_calls = await self.cache_service.get(cache_key)
+        api_key = await self.apikey_service.get()
         
-        logger.info(f"Daily API calls: {api_calls}, Daily Limit: {self.settings.daily_limit}")
+        logger.info(f'Got API key={api_key}')
         
-        if api_calls and int(api_calls) > self.settings.daily_limit:
+        if api_key is None:
             raise RapidApiException(name="teams", message = "Daily limit reached for Rapid API Key.")
         
- 
         url = f"https://{self.settings.api_hostname}{endpoint}"
-        headers = get_request_header(settings=self.settings)
-        logger.debug(f"calling endpoint={url}")
+        headers = self.__get_request_header(api_hostname=self.settings.api_hostname,
+                                          api_key=api_key)
+        logger.info(f"calling endpoint={url}")
 
         async with aiohttp.ClientSession() as session:
             try:
                 result = await asyncio.gather(get_request(session=session,
                                 url=url, params=params, headers=headers))
-                
-                
-                if api_calls is None:
-                    api_calls = "0"
-                
-                await self.cache_service.set(key=cache_key, 
-                                             value= str(int(api_calls) + 1),
-                                             exp=timedelta(days=self.settings.cache_key_expiry_in_days))
+                 
+                await self.apikey_service.update_apiaccess_cache_count()
                 
                 api_response = result[0]
                 if api_response.status_code == status.HTTP_200_OK:
