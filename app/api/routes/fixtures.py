@@ -147,7 +147,7 @@ async def sync_fixtures_by_date(params: CommonsPathDependency,
         raise ServiceException(name="fixtures", message="From date cannot be less than To date.")
     
     # Increment to date by 1 to find document with event date between dates
-    tdate = datetime.date(tdate.year, tdate.month, tdate.day+1)
+    tdate = datetime.date(tdate.year, tdate.month, tdate.day) + datetime.timedelta(days=1)
     
     await fixture_template_service.update_by_date(
         season=params.season,
